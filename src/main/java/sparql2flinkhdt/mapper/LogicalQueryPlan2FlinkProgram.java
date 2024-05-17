@@ -19,7 +19,7 @@ public class LogicalQueryPlan2FlinkProgram {
     public String logicalQueryPlan2FlinkProgram() {
         String flinkProgram = "";
 
-        flinkProgram += "package sparql2flink.out;\n\n" +
+        flinkProgram += "package sparql2flinkhdt.out;\n\n" +
                 "import org.apache.flink.api.java.DataSet;\n" +
                 "import org.apache.flink.api.common.operators.Order;\n" +
                 "import org.apache.flink.api.java.ExecutionEnvironment;\n" +

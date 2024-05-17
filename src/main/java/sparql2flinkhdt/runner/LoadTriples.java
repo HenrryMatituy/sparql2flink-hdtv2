@@ -9,27 +9,19 @@ import org.rdfhdt.hdt.options.HDTSpecification;
 
 
 public class LoadTriples {
-	public static HDT fromDataset(ExecutionEnvironment environment, String filePath) {
-	    Preconditions.checkNotNull(filePath, "The file path may not be null...");
+    public static HDT fromDataset(ExecutionEnvironment environment, String filePath) {
+        Preconditions.checkNotNull(filePath, "The file path may not be null...");
+
         HDT hdt = null;
 
         try {
-            hdt = HDTManager.generateHDT(filePath, "", RDFNotation.parse("ntriples"), new HDTSpecification(),null);
-
-//            HDT hdt1 = HDTManager.generateHDT(
-//                    rdfInput,         // Input RDF File
-//                    baseURI,          // Base URI
-//                    RDFNotation.parse(inputType), // Input Type
-//                    new HDTSpecification(),   // HDT Options
-//                    null              // Progress Listener
-
-
-
-
-        }catch (Exception e){
-
+            // Generate HDT from N-Triples file with a non-empty baseURI
+            String baseURI = "http://example.org/baseURI";
+            hdt = HDTManager.generateHDT(filePath, baseURI, RDFNotation.NTRIPLES, new HDTSpecification(), null);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        return hdt;
-	}
-}
 
+        return hdt;
+    }
+}
