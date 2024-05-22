@@ -1,4 +1,3 @@
-//20 05 2024
 package sparql2flinkhdt.out;
 
 import org.apache.flink.api.java.DataSet;
