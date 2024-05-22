@@ -136,19 +136,32 @@ under the License.
 							<goal>shade</goal>
 						</goals>
 						<configuration>
-							<createDependencyReducedPom>false</createDependencyReducedPom>
 							<artifactSet>
-								<includes>
-									<include>*:*</include>
-								</includes>
+								<excludes>
+									<!--<exclude>org.apache.flink:flink-shaded-force-shading</exclude>
+									<exclude>com.google.code.findbugs:jsr305</exclude>
+									<exclude>org.slf4j:*</exclude>
+									<exclude>org.apache.logging.log4j:*</exclude>-->
+								</excludes>
 							</artifactSet>
+							<filters>
+								<filter>
+									<!-- Do not copy the signatures in the META-INF folder.
+                                    Otherwise, this might cause SecurityExceptions when using the JAR. -->
+									<artifact>*:*</artifact>
+									<excludes>
+										<exclude>META-INF/*.SF</exclude>
+										<exclude>META-INF/*.DSA</exclude>
+										<exclude>META-INF/*.RSA</exclude>
+									</excludes>
+								</filter>
+							</filters>
 							<transformers>
-								<transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
-								<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-									<mainClass>SPARQL2FlinkHDT</mainClass>
+								<transformer
+										implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+									<mainClass>sparql2flinkhdt.SPARQL2FlinkHDT</mainClass>
 								</transformer>
 							</transformers>
-							<finalName>${project.artifactId}-${project.version}-shaded</finalName>
 						</configuration>
 					</execution>
 				</executions>

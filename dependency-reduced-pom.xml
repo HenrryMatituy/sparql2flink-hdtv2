@@ -51,16 +51,8 @@
     </pluginManagement>
     <plugins>
       <plugin>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.1</version>
-        <configuration>
-          <source>${target.java.version}</source>
-          <target>${target.java.version}</target>
-        </configuration>
-      </plugin>
-      <plugin>
         <artifactId>maven-shade-plugin</artifactId>
-        <version>3.0.0</version>
+        <version>3.2.4</version>
         <executions>
           <execution>
             <phase>package</phase>
@@ -127,4 +119,3 @@
     <flink.version>1.15.0</flink.version>
   </properties>
 </project>
-
