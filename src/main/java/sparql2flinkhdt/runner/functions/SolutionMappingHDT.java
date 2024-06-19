@@ -3,6 +3,7 @@ package sparql2flinkhdt.runner.functions;
 import org.rdfhdt.hdt.dictionary.Dictionary;
 import org.apache.jena.sparql.expr.Expr;
 import org.apache.jena.sparql.sse.SSE;
+import sparql2flinkhdt.runner.SerializableHDT;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,47 +11,52 @@ import java.util.Map;
 public class SolutionMappingHDT {
 
     private HashMap<String, Integer[]> mapping = new HashMap<>();
+    private SerializableHDT serializableHDT;
 
-	public SolutionMappingHDT() {}
+    public SolutionMappingHDT() {}
 
-	public void SolutionMappingHDT(HashMap<String, Integer[]> sm){
-		this.mapping = sm;
-	}
+    public SolutionMappingHDT(HashMap<String, Integer[]> sm){
+        this.mapping = sm;
+    }
+
+    public SolutionMappingHDT(SerializableHDT serializableHDT){
+        this.serializableHDT = serializableHDT;
+    }
 
     public void setMapping(HashMap<String, Integer[]> mapping){
         this.mapping = mapping;
     }
 
-	public HashMap<String, Integer[]> getMapping(){
-		return mapping;
-	}
+    public HashMap<String, Integer[]> getMapping(){
+        return mapping;
+    }
 
-	public void putMapping(String var, Integer[] val) {
+    public void putMapping(String var, Integer[] val) {
         mapping.put(var, val);
-	}
+    }
 
-	public Integer[] getValue(String var){
-		return mapping.get(var);
-	}
+    public Integer[] getValue(String var){
+        return mapping.get(var);
+    }
 
-	public boolean existMapping(String var, Integer val){
-		Boolean flag = false;
+    public boolean existMapping(String var, Integer val){
+        Boolean flag = false;
         if(mapping.containsKey(var)) {
             if(mapping.get(var)[0] == val) {
                 flag = true;
             }
         }
-		return flag;
-	}
+        return flag;
+    }
 
-	public SolutionMappingHDT join(SolutionMappingHDT sm){
+    public SolutionMappingHDT join(SolutionMappingHDT sm){
         for (Map.Entry<String, Integer[]> hm : sm.getMapping().entrySet()) {
             if (!existMapping(hm.getKey(), hm.getValue()[0])) {
                 this.putMapping(hm.getKey(), hm.getValue());
             }
         }
-		return this;
-	}
+        return this;
+    }
 
     public SolutionMappingHDT leftJoin(SolutionMappingHDT sm) {
         if(sm != null) {
@@ -63,15 +69,15 @@ public class SolutionMappingHDT {
         return this;
     }
 
-	public SolutionMappingHDT newSolutionMapping(String[] vars){
-		SolutionMappingHDT sm = new SolutionMappingHDT();
-		for (String var : vars) {
+    public SolutionMappingHDT newSolutionMapping(String[] vars){
+        SolutionMappingHDT sm = new SolutionMappingHDT();
+        for (String var : vars) {
             if(var != null) {
                 sm.putMapping(var, mapping.get(var));
             }
-		}
-		return sm;
-	}
+        }
+        return sm;
+    }
 
     public SolutionMappingHDT project(String[] vars){
         SolutionMappingHDT sm = new SolutionMappingHDT();
@@ -83,20 +89,30 @@ public class SolutionMappingHDT {
         return sm;
     }
 
-	public boolean filter(Dictionary dictionary, String expression){
-		Expr expr = SSE.parseExpr(expression);
-		return FilterConvert.convert(dictionary, expr, this.getMapping());
-	}
+    public boolean filter(Dictionary dictionary, String expression){
+        Expr expr = SSE.parseExpr(expression);
+        return FilterConvert.convert(dictionary, expr, this.getMapping());
+    }
 
-
-	@Override
-	public String toString() {
-		String sm="";
-		for (Map.Entry<String, Integer[]> hm : mapping.entrySet()) {
-		    if(hm.getValue() != null) {
+    @Override
+    public String toString() {
+        String sm="";
+        for (Map.Entry<String, Integer[]> hm : mapping.entrySet()) {
+            if(hm.getValue() != null) {
                 sm += hm.getKey() + "-->" + hm.getValue()[0] + "\t";
             }
-		}
-		return sm;
-	}
+        }
+        return sm;
+    }
+
+    // Métodos para convertir a y desde SerializableHDT
+    public SerializableHDT toSerializableHDT() {
+        return serializableHDT;
+    }
+
+    public static SolutionMappingHDT fromSerializableHDT(SerializableHDT serializableHDT) {
+        SolutionMappingHDT solutionMappingHDT = new SolutionMappingHDT(serializableHDT);
+        // Aquí puedes agregar lógica adicional si es necesario para inicializar mapping desde serializableHDT
+        return solutionMappingHDT;
+    }
 }

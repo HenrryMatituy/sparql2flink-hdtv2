@@ -2,11 +2,10 @@ package sparql2flinkhdt.runner.functions;
 
 import org.apache.flink.api.common.functions.MapFunction;
 import org.rdfhdt.hdt.dictionary.Dictionary;
+import org.apache.jena.graph.Node;
 
-import java.util.HashMap;
 import java.util.Map;
 
-//SolutionMapping to SolutionMapping - Map Function
 public class TripleID2TripleString implements MapFunction<SolutionMappingHDT, SolutionMappingURI> {
 
     private static Dictionary dictionary;
@@ -24,4 +23,3 @@ public class TripleID2TripleString implements MapFunction<SolutionMappingHDT, So
         return smURI;
     }
 }
-
