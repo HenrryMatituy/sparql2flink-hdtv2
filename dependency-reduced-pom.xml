@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>sparql2flinkhdt</groupId>
-  <artifactId>sparql2flink-hdt</artifactId>
+  <groupId>sparql2flink</groupId>
+  <artifactId>query</artifactId>
   <name>SPARQL Query to Flink Program (DataSet)</name>
   <version>1.0-SNAPSHOT</version>
   <url>http://www.univalle.edu.co</url>
@@ -20,7 +20,7 @@
                   <pluginExecutionFilter>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-shade-plugin</artifactId>
-                    <versionRange>[3.0.0,)</versionRange>
+                    <versionRange>[3.2.4,)</versionRange>
                     <goals>
                       <goal>shade</goal>
                     </goals>
@@ -33,7 +33,7 @@
                   <pluginExecutionFilter>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <versionRange>[3.1,)</versionRange>
+                    <versionRange>[3.8.1,)</versionRange>
                     <goals>
                       <goal>testCompile</goal>
                       <goal>compile</goal>
@@ -51,6 +51,14 @@
     </pluginManagement>
     <plugins>
       <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.8.1</version>
+        <configuration>
+          <source>${target.java.version}</source>
+          <target>${target.java.version}</target>
+        </configuration>
+      </plugin>
+      <plugin>
         <artifactId>maven-shade-plugin</artifactId>
         <version>3.2.4</version>
         <executions>
@@ -61,7 +69,10 @@
             </goals>
             <configuration>
               <artifactSet>
-                <excludes />
+                <excludes>
+                  <exclude>org.apache.flink:force-shading</exclude>
+                  <exclude>com.google.code.findbugs:jsr305</exclude>
+                </excludes>
               </artifactSet>
               <filters>
                 <filter>
@@ -75,7 +86,7 @@
               </filters>
               <transformers>
                 <transformer>
-                  <mainClass>sparql2flinkhdt.SPARQL2FlinkHDT</mainClass>
+                  <mainClass>sparql2flinkhdt.out.Query</mainClass>
                 </transformer>
               </transformers>
             </configuration>
@@ -108,6 +119,21 @@
       <url>https://repository.apache.org/content/repositories/snapshots/</url>
     </repository>
   </repositories>
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.flink</groupId>
+      <artifactId>flink-streaming-scala_2.12</artifactId>
+      <version>1.15.0</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.jena</groupId>
+      <artifactId>apache-jena-libs</artifactId>
+      <version>4.0.0</version>
+      <type>pom</type>
+      <scope>compile</scope>
+    </dependency>
+  </dependencies>
   <properties>
     <scala.binary.version>2.12</scala.binary.version>
     <maven.compiler.target>${target.java.version}</maven.compiler.target>
