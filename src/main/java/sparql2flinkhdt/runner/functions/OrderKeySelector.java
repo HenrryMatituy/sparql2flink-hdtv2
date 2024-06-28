@@ -18,12 +18,12 @@ public class OrderKeySelector implements KeySelector<SolutionMappingHDT, String>
 	@Override
 	public String getKey(SolutionMappingHDT sm) {
         String value = "";
-	    Node node = TripleIDConvert.idToString(dictionary, sm.getMapping().get(key));
-        if(node.isLiteral()) {
-            value = node.getLiteralValue().toString();
-        }else if(node.isURI()){
-            value = sm.getMapping().get(key).toString();
-        }
+//	    Node node = TripleIDConvert.idToString(dictionary, sm.getMapping().get(key));
+//        if(node.isLiteral()) {
+//            value = node.getLiteralValue().toString();
+//        }else if(node.isURI()){
+//            value = sm.getMapping().get(key).toString();
+//        }
         return value;
 	}
 }

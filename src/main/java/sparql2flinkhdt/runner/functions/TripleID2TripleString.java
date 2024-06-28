@@ -18,7 +18,7 @@ public class TripleID2TripleString implements MapFunction<SolutionMappingHDT, So
     public SolutionMappingURI map(SolutionMappingHDT smHDT) {
         SolutionMappingURI smURI = new SolutionMappingURI();
         for (Map.Entry<String, Integer[]> hm : smHDT.getMapping().entrySet()) {
-            smURI.putMapping(hm.getKey(), TripleIDConvert.idToString(dictionary, hm.getValue()));
+//            smURI.putMapping(hm.getKey(), TripleIDConvert.idToString(dictionary, hm.getValue()));
         }
         return smURI;
     }
