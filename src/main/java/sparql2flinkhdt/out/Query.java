@@ -6,6 +6,7 @@ import org.apache.flink.api.java.ExecutionEnvironment;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.core.fs.FileSystem;
 import org.apache.jena.graph.Node;
+import org.rdfhdt.hdt.dictionary.Dictionary;
 import org.rdfhdt.hdt.hdt.HDT;
 import org.rdfhdt.hdt.triples.IteratorTripleID;
 import org.rdfhdt.hdt.triples.TripleID;
@@ -59,7 +60,7 @@ public class Query {
 				.map(new Project(new String[]{"?person", "?name", "?mbox"}));
 
 		DataSet<SolutionMappingURI> sm5 = sm4
-				.map(new TripleID2TripleString(serializableDictionary));
+				.map(new TripleID2TripleString((Dictionary) serializableDictionary));
 
 		//************ Sink  ************
 		sm5.writeAsText(params.get("output") + "Query-Flink-Result", FileSystem.WriteMode.OVERWRITE)

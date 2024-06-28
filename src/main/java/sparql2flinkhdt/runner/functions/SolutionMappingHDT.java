@@ -3,15 +3,16 @@ package sparql2flinkhdt.runner.functions;
 import org.rdfhdt.hdt.dictionary.Dictionary;
 import org.apache.jena.sparql.expr.Expr;
 import org.apache.jena.sparql.sse.SSE;
-import sparql2flinkhdt.runner.SerializableHDT;
+import sparql2flinkhdt.runner.SerializableDictionary;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SolutionMappingHDT {
+public class SolutionMappingHDT implements Serializable {
 
     private HashMap<String, Integer[]> mapping = new HashMap<>();
-    private SerializableHDT serializableHDT;
+    private SerializableDictionary serializableDictionary;
 
     public SolutionMappingHDT() {}
 
@@ -19,8 +20,8 @@ public class SolutionMappingHDT {
         this.mapping = sm;
     }
 
-    public SolutionMappingHDT(SerializableHDT serializableHDT){
-        this.serializableHDT = serializableHDT;
+    public SolutionMappingHDT(SerializableDictionary serializableDictionary){
+        this.serializableDictionary = serializableDictionary;
     }
 
     public void setMapping(HashMap<String, Integer[]> mapping){
@@ -96,23 +97,23 @@ public class SolutionMappingHDT {
 
     @Override
     public String toString() {
-        String sm="";
+        StringBuilder sm = new StringBuilder();
         for (Map.Entry<String, Integer[]> hm : mapping.entrySet()) {
             if(hm.getValue() != null) {
-                sm += hm.getKey() + "-->" + hm.getValue()[0] + "\t";
+                sm.append(hm.getKey()).append("-->").append(hm.getValue()[0]).append("\t");
             }
         }
-        return sm;
+        return sm.toString();
     }
 
-    // Métodos para convertir a y desde SerializableHDT
-    public SerializableHDT toSerializableHDT() {
-        return serializableHDT;
+    // Métodos para convertir a y desde SerializableDictionary
+    public SerializableDictionary toSerializableDictionary() {
+        return serializableDictionary;
     }
 
-    public static SolutionMappingHDT fromSerializableHDT(SerializableHDT serializableHDT) {
-        SolutionMappingHDT solutionMappingHDT = new SolutionMappingHDT(serializableHDT);
-        // Aquí puedes agregar lógica adicional si es necesario para inicializar mapping desde serializableHDT
+    public static SolutionMappingHDT fromSerializableDictionary(SerializableDictionary serializableDictionary) {
+        SolutionMappingHDT solutionMappingHDT = new SolutionMappingHDT(serializableDictionary);
+        // Aquí puedes agregar lógica adicional si es necesario para inicializar mapping desde serializableDictionary
         return solutionMappingHDT;
     }
 }

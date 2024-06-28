@@ -3,23 +3,22 @@ package sparql2flinkhdt.runner.functions;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.rdfhdt.hdt.triples.TripleID;
 import sparql2flinkhdt.runner.SerializableDictionary;
-import sparql2flinkhdt.runner.SerializableHDT;
 
 public class Triple2SolutionMapping implements MapFunction<TripleID, SolutionMappingHDT> {
 
     private String var_s, var_p, var_o = null;
-    private SerializableHDT serializableHDT;
+    private SerializableDictionary serializableDictionary;
 
-    public Triple2SolutionMapping(String s, String p, String o, SerializableDictionary serializableHDT){
+    public Triple2SolutionMapping(String s, String p, String o, SerializableDictionary serializableDictionary){
         this.var_s = s;
         this.var_p = p;
         this.var_o = o;
-        this.serializableHDT = serializableHDT;
+        this.serializableDictionary = serializableDictionary;
     }
 
     @Override
     public SolutionMappingHDT map(TripleID t) {
-        SolutionMappingHDT sm = new SolutionMappingHDT(serializableHDT);
+        SolutionMappingHDT sm = new SolutionMappingHDT(serializableDictionary);
         if(var_s != null && var_p == null && var_o == null) {
             sm.putMapping(var_s, new Integer[]{Math.toIntExact(t.getSubject()), 1});
         } else if(var_s != null && var_p != null && var_o == null) {
