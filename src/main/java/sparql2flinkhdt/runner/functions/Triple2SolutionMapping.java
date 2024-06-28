@@ -1,19 +1,16 @@
 package sparql2flinkhdt.runner.functions;
 
 import org.apache.flink.api.common.functions.MapFunction;
-import org.apache.jena.graph.Triple;
-import org.rdfhdt.hdt.enums.TripleComponentRole;
 import org.rdfhdt.hdt.triples.TripleID;
+import sparql2flinkhdt.runner.SerializableDictionary;
 import sparql2flinkhdt.runner.SerializableHDT;
-
-import java.util.HashMap;
 
 public class Triple2SolutionMapping implements MapFunction<TripleID, SolutionMappingHDT> {
 
     private String var_s, var_p, var_o = null;
     private SerializableHDT serializableHDT;
 
-    public Triple2SolutionMapping(String s, String p, String o, SerializableHDT serializableHDT){
+    public Triple2SolutionMapping(String s, String p, String o, SerializableDictionary serializableHDT){
         this.var_s = s;
         this.var_p = p;
         this.var_o = o;
