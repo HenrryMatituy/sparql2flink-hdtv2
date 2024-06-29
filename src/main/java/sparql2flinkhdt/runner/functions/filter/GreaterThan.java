@@ -4,7 +4,7 @@ import org.apache.jena.datatypes.xsd.XSDDateTime;
 import org.apache.jena.graph.Node;
 import org.apache.jena.sparql.expr.E_GreaterThan;
 import org.apache.jena.sparql.expr.Expr;
-import org.rdfhdt.hdt.dictionary.Dictionary;
+import sparql2flinkhdt.runner.SerializableDictionary;
 import sparql2flinkhdt.runner.functions.TripleIDConvert;
 
 import java.math.BigDecimal;
@@ -14,7 +14,7 @@ import java.util.HashMap;
 
 public class GreaterThan {
 
-    public static boolean eval(Dictionary dictionary, E_GreaterThan expression, HashMap<String, Integer[]> sm) {
+    public static boolean eval(SerializableDictionary dictionary, E_GreaterThan expression, HashMap<String, Integer[]> sm) {
         Expr arg1 = expression.getArg1();
         Expr arg2 = expression.getArg2();
 
@@ -34,50 +34,42 @@ public class GreaterThan {
         }
 
         if (value_left.getLiteralDatatype().getJavaClass().equals(BigDecimal.class)) {
-            if (Double.parseDouble(value_left.getLiteralValue().toString()) > Double.parseDouble(value_right.getLiteralValue().toString())) {
-                //System.out.println("--- GreaterThan --- BigDecimal");
+            if (new BigDecimal(value_left.getLiteralValue().toString()).compareTo(new BigDecimal(value_right.getLiteralValue().toString())) > 0) {
                 flag = true;
             }
 
         } else if (value_left.getLiteralDatatype().getJavaClass().equals(BigInteger.class)) {
-            if (Integer.parseInt(value_left.getLiteralValue().toString()) > Integer.parseInt(value_right.getLiteralValue().toString())) {
-                //System.out.println("--- GreaterThan --- BigDecimal");
+            if (new BigInteger(value_left.getLiteralValue().toString()).compareTo(new BigInteger(value_right.getLiteralValue().toString())) > 0) {
                 flag = true;
             }
 
         } else if (value_left.getLiteralDatatype().getJavaClass().equals(Float.class)) {
             if (Float.parseFloat(value_left.getLiteralValue().toString()) > Float.parseFloat(value_right.getLiteralValue().toString())) {
-                //System.out.println("--- GreaterThan --- BigDecimal");
                 flag = true;
             }
 
         } else if (value_left.getLiteralDatatype().getJavaClass().equals(Double.class)) {
             if (Double.parseDouble(value_left.getLiteralValue().toString()) > Double.parseDouble(value_right.getLiteralValue().toString())) {
-                //System.out.println("--- GreaterThan --- Double");
                 flag = true;
             }
 
         } else if (value_left.getLiteralDatatype().getJavaClass().equals(Integer.class)) {
             if (Integer.parseInt(value_left.getLiteralValue().toString()) > Integer.parseInt(value_right.getLiteralValue().toString())) {
-                //System.out.println("--- GreaterThan --- Integer");
                 flag = true;
             }
 
         } else if (value_left.getLiteralDatatype().getJavaClass().equals(Long.class)) {
             if (Long.parseLong(value_left.getLiteralValue().toString()) > Long.parseLong(value_right.getLiteralValue().toString())) {
-                //System.out.println("--- GreaterThan --- Long");
                 flag = true;
             }
 
         } else if (value_left.getLiteralDatatype().getJavaClass().equals(Short.class)) {
             if (Short.parseShort(value_left.getLiteralValue().toString()) > Short.parseShort(value_right.getLiteralValue().toString())) {
-                //System.out.println("--- GreaterThan --- Short");
                 flag = true;
             }
 
         } else if (value_left.getLiteralDatatype().getJavaClass().equals(Byte.class)) {
             if (Byte.parseByte(value_left.getLiteralValue().toString()) > Byte.parseByte(value_right.getLiteralValue().toString())) {
-                //System.out.println("--- GreaterThan --- Short");
                 flag = true;
             }
 
@@ -88,7 +80,6 @@ public class GreaterThan {
             long rightTime = timestampRight.getTime();
 
             if (leftTime > rightTime) {
-                //System.out.println("--- GreaterThan --- XSDDateTime");
                 flag = true;
             }
         } else {

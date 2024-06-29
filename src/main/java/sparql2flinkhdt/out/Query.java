@@ -40,7 +40,9 @@ public class Query {
 		DataSet<TripleID> dataset = env.fromCollection(listTripleID);
 
 		//************ Creating SerializableDictionary ************
-		SerializableDictionary serializableDictionary = new SerializableDictionary(hdt.getDictionary());
+//		SerializableDictionary serializableDictionary = new SerializableDictionary(hdt.getDictionary());
+		SerializableDictionary serializableDictionary = new SerializableDictionary();
+
 
 		//************ Applying Transformations ************
 		DataSet<SolutionMappingHDT> sm1 = dataset

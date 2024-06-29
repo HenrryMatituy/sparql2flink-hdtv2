@@ -6,7 +6,7 @@ import sparql2flinkhdt.runner.SerializableDictionary;
 
 public class Triple2SolutionMapping implements MapFunction<TripleID, SolutionMappingHDT> {
 
-    private String var_s, var_p, var_o = null;
+    private String var_s, var_p, var_o;
     private SerializableDictionary serializableDictionary;
 
     public Triple2SolutionMapping(String s, String p, String o, SerializableDictionary serializableDictionary){

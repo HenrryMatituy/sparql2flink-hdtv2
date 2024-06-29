@@ -4,7 +4,7 @@ import org.apache.jena.datatypes.xsd.XSDDateTime;
 import org.apache.jena.graph.Node;
 import org.apache.jena.sparql.expr.E_LessThanOrEqual;
 import org.apache.jena.sparql.expr.Expr;
-import org.rdfhdt.hdt.dictionary.Dictionary;
+import sparql2flinkhdt.runner.SerializableDictionary;
 import sparql2flinkhdt.runner.functions.TripleIDConvert;
 
 import java.math.BigDecimal;
@@ -12,9 +12,9 @@ import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.util.HashMap;
 
-public class LessThanOrEqual{
+public class LessThanOrEqual {
 
-	public static boolean eval(Dictionary dictionary, E_LessThanOrEqual expression, HashMap<String, Integer[]> sm) {
+	public static boolean eval(SerializableDictionary dictionary, E_LessThanOrEqual expression, HashMap<String, Integer[]> sm) {
 		Expr arg1 = expression.getArg1();
 		Expr arg2 = expression.getArg2();
 

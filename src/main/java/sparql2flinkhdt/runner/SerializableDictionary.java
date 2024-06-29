@@ -1,26 +1,79 @@
 package sparql2flinkhdt.runner;
 
-import org.rdfhdt.hdt.dictionary.Dictionary;
 import org.rdfhdt.hdt.enums.TripleComponentRole;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SerializableDictionary implements Serializable {
     private static final long serialVersionUID = 1L;
-    private final Dictionary dictionary;
 
-    public SerializableDictionary(Dictionary dictionary) {
-        this.dictionary = dictionary;
+    private final Map<String, Integer> subjectMap = new HashMap<>();
+    private final Map<String, Integer> predicateMap = new HashMap<>();
+    private final Map<String, Integer> objectMap = new HashMap<>();
+    private final Map<Integer, String> reverseSubjectMap = new HashMap<>();
+    private final Map<Integer, String> reversePredicateMap = new HashMap<>();
+    private final Map<Integer, String> reverseObjectMap = new HashMap<>();
+
+    public SerializableDictionary() {
+        // Populate these maps based on your actual dictionary
+        // For example, you might iterate over the entries in your existing Dictionary
+        // and fill these maps accordingly
     }
 
     public int stringToID(String value, TripleComponentRole role) {
-        return (int) dictionary.stringToId(value, role);
+        switch (role) {
+            case SUBJECT:
+                return subjectMap.getOrDefault(value, -1);
+            case PREDICATE:
+                return predicateMap.getOrDefault(value, -1);
+            case OBJECT:
+                return objectMap.getOrDefault(value, -1);
+            default:
+                throw new IllegalArgumentException("Unknown TripleComponentRole: " + role);
+        }
     }
 
     public String idToString(int id, TripleComponentRole role) {
-        return (String) dictionary.idToString(id, role);
+        switch (role) {
+            case SUBJECT:
+                return reverseSubjectMap.get(id);
+            case PREDICATE:
+                return reversePredicateMap.get(id);
+            case OBJECT:
+                return reverseObjectMap.get(id);
+            default:
+                throw new IllegalArgumentException("Unknown TripleComponentRole: " + role);
+        }
     }
 }
+
+
+
+//package sparql2flinkhdt.runner;
+//
+//import org.rdfhdt.hdt.dictionary.Dictionary;
+//import org.rdfhdt.hdt.enums.TripleComponentRole;
+//
+//import java.io.Serializable;
+//
+//public class SerializableDictionary implements Serializable {
+//    private static final long serialVersionUID = 1L;
+//    private final Dictionary dictionary;
+//
+//    public SerializableDictionary(Dictionary dictionary) {
+//        this.dictionary = dictionary;
+//    }
+//
+//    public int stringToID(String value, TripleComponentRole role) {
+//        return (int) dictionary.stringToId(value, role);
+//    }
+//
+//    public String idToString(int id, TripleComponentRole role) {
+//        return (String) dictionary.idToString(id, role);
+//    }
+//}
 
 
 

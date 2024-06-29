@@ -7,6 +7,7 @@ import org.rdfhdt.hdt.dictionary.Dictionary;
 import org.rdfhdt.hdt.enums.TripleComponentRole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sparql2flinkhdt.runner.SerializableDictionary;
 
 
 import java.io.Serializable;
@@ -26,7 +27,7 @@ public class TripleIDConvert implements Serializable {
         return element;
     }
 
-    public static Node idToStringFilter(Dictionary dictionary, Integer[] id) {
+    public static Node idToStringFilter(SerializableDictionary dictionary, Integer[] id) {
         Node element = null;
         if (id[1] == 1) {
             element = NodeFactory.createURI(dictionary.idToString(id[0], TripleComponentRole.SUBJECT).toString());
