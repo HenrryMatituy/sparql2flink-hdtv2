@@ -9,21 +9,21 @@ import sparql2flinkhdt.runner.functions.TripleIDConvert;
 // SolutionMapping - Key Selector Order by
 public class OrderKeySelector_String implements KeySelector<SolutionMappingHDT, String> {
 
-	static SerializableDictionary dictionary;
+	private SerializableDictionary dictionary;
 	private String key;
 
-	public OrderKeySelector_String(SerializableDictionary dictionary, String k) {
+	public OrderKeySelector_String(SerializableDictionary dictionary, String key) {
 		this.dictionary = dictionary;
-		this.key = k;
+		this.key = key;
 	}
 
 	@Override
 	public String getKey(SolutionMappingHDT sm) {
 		String value = "";
 		Node node = TripleIDConvert.idToStringFilter(dictionary, sm.getMapping().get(key));
-		if(node.isLiteral()) {
+		if (node.isLiteral()) {
 			value = node.getLiteralValue().toString();
-		}else if(node.isURI()){
+		} else if (node.isURI()) {
 			value = node.toString();
 		}
 		return value;

@@ -1,24 +1,26 @@
 package sparql2flinkhdt.runner.functions;
 
 import org.apache.flink.api.common.functions.MapFunction;
-import org.rdfhdt.hdt.dictionary.Dictionary;
 import org.apache.jena.graph.Node;
+import org.rdfhdt.hdt.triples.TripleID;
+import sparql2flinkhdt.runner.SerializableDictionary;
 
-import java.util.Map;
-
+// SolutionMappingHDT to SolutionMappingURI - Map Function
 public class TripleID2TripleString implements MapFunction<SolutionMappingHDT, SolutionMappingURI> {
 
-    private static Dictionary dictionary;
+    private SerializableDictionary dictionary;
 
-    public TripleID2TripleString(Dictionary d){
-        dictionary = d;
+    public TripleID2TripleString(SerializableDictionary dictionary) {
+        this.dictionary = dictionary;
     }
 
     @Override
-    public SolutionMappingURI map(SolutionMappingHDT smHDT) {
+    public SolutionMappingURI map(SolutionMappingHDT sm) {
         SolutionMappingURI smURI = new SolutionMappingURI();
-        for (Map.Entry<String, Integer[]> hm : smHDT.getMapping().entrySet()) {
-//            smURI.putMapping(hm.getKey(), TripleIDConvert.idToString(dictionary, hm.getValue()));
+        for (String var : sm.getMapping().keySet()) {
+            Integer[] id = sm.getMapping().get(var);
+            Node node = TripleIDConvert.idToString(dictionary, id);
+            smURI.putMapping(var, node);
         }
         return smURI;
     }

@@ -8,12 +8,12 @@ import sparql2flinkhdt.runner.functions.TripleIDConvert;
 // SolutionMapping - Key Selector Order by
 public class OrderKeySelector_Integer implements KeySelector<SolutionMappingHDT, Integer> {
 
-	static SerializableDictionary dictionary;
+	private SerializableDictionary dictionary;
 	private String key;
 
-	public OrderKeySelector_Integer(SerializableDictionary dictionary, String k) {
+	public OrderKeySelector_Integer(SerializableDictionary dictionary, String key) {
 		this.dictionary = dictionary;
-		this.key = k;
+		this.key = key;
 	}
 
 	@Override
