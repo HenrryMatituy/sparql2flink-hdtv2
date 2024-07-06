@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class SolutionMappingHDT implements Serializable {
+    private static final long serialVersionUID = 1L;  // Añadido serialVersionUID
 
     private HashMap<String, Integer[]> mapping = new HashMap<>();
     private SerializableDictionary serializableDictionary;
@@ -104,7 +105,14 @@ public class SolutionMappingHDT implements Serializable {
         return sm.toString();
     }
 
-    // Métodos para convertir a y desde SerializableDictionary
+    public SerializableDictionary getSerializableDictionary() {
+        return serializableDictionary;
+    }
+
+    public void setSerializableDictionary(SerializableDictionary serializableDictionary) {
+        this.serializableDictionary = serializableDictionary;
+    }
+
     public SerializableDictionary toSerializableDictionary() {
         return serializableDictionary;
     }

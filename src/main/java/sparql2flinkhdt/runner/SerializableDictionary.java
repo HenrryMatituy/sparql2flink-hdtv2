@@ -47,6 +47,10 @@ public class SerializableDictionary implements Serializable {
                 throw new IllegalArgumentException("Unknown TripleComponentRole: " + role);
         }
     }
+    public String toString() {
+        // Implementar un método toString adecuado
+        return "SerializableDictionary{...}";
+    }
 }
 
 
