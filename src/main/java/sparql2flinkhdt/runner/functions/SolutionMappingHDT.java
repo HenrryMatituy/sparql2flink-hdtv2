@@ -6,9 +6,11 @@ import sparql2flinkhdt.runner.SerializableDictionary;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 public class SolutionMappingHDT implements Serializable {
-    private static final long serialVersionUID = 1L;  // Añadido serialVersionUID
+    private static final long serialVersionUID = 1L;
+    private static final Logger logger = Logger.getLogger(SolutionMappingHDT.class.getName());
 
     private HashMap<String, Integer[]> mapping = new HashMap<>();
     private SerializableDictionary serializableDictionary;
@@ -102,6 +104,7 @@ public class SolutionMappingHDT implements Serializable {
                 sm.append(hm.getKey()).append("-->").append(hm.getValue()[0]).append("\t");
             }
         }
+        logger.info("SolutionMappingHDT toString: " + sm.toString());
         return sm.toString();
     }
 
