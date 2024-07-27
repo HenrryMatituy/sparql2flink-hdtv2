@@ -9,11 +9,12 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 public class SolutionMappingHDT implements Serializable {
-    private static final long serialVersionUID = 1L;
-    private static final Logger logger = Logger.getLogger(SolutionMappingHDT.class.getName());
 
+    private static final long serialVersionUID = 1L;
     private HashMap<String, Integer[]> mapping = new HashMap<>();
     private SerializableDictionary serializableDictionary;
+
+    private static final Logger logger = Logger.getLogger(SolutionMappingHDT.class.getName());
 
     public SolutionMappingHDT() {}
 
@@ -35,6 +36,7 @@ public class SolutionMappingHDT implements Serializable {
 
     public void putMapping(String var, Integer[] val) {
         mapping.put(var, val);
+        logger.info(String.format("putMapping: var=%s, val=%s", var, val));
     }
 
     public Integer[] getValue(String var) {
@@ -42,12 +44,8 @@ public class SolutionMappingHDT implements Serializable {
     }
 
     public boolean existMapping(String var, Integer val) {
-        Boolean flag = false;
-        if (mapping.containsKey(var)) {
-            if (mapping.get(var)[0] == val) {
-                flag = true;
-            }
-        }
+        boolean flag = mapping.containsKey(var) && mapping.get(var)[0].equals(val);
+        logger.info(String.format("existMapping: var=%s, val=%d, exists=%b", var, val, flag));
         return flag;
     }
 
@@ -93,7 +91,9 @@ public class SolutionMappingHDT implements Serializable {
 
     public boolean filter(SerializableDictionary dictionary, String expression) {
         Expr expr = SSE.parseExpr(expression);
-        return FilterConvert.convert(dictionary, expr, this.mapping);
+        boolean result = FilterConvert.convert(dictionary, expr, this.mapping);
+        logger.info(String.format("filter: expression=%s, result=%b", expression, result));
+        return result;
     }
 
     @Override
@@ -104,18 +104,10 @@ public class SolutionMappingHDT implements Serializable {
                 sm.append(hm.getKey()).append("-->").append(hm.getValue()[0]).append("\t");
             }
         }
-        logger.info("SolutionMappingHDT toString: " + sm.toString());
         return sm.toString();
     }
 
-    public SerializableDictionary getSerializableDictionary() {
-        return serializableDictionary;
-    }
-
-    public void setSerializableDictionary(SerializableDictionary serializableDictionary) {
-        this.serializableDictionary = serializableDictionary;
-    }
-
+    // Métodos para convertir a y desde SerializableDictionary
     public SerializableDictionary toSerializableDictionary() {
         return serializableDictionary;
     }

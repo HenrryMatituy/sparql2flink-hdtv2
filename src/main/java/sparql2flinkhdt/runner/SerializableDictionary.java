@@ -9,7 +9,6 @@ import java.util.logging.Logger;
 
 public class SerializableDictionary implements Serializable {
     private static final long serialVersionUID = 1L;
-    private static final Logger logger = Logger.getLogger(SerializableDictionary.class.getName());
 
     private final Map<String, Integer> subjectMap = new HashMap<>();
     private final Map<String, Integer> predicateMap = new HashMap<>();
@@ -18,22 +17,19 @@ public class SerializableDictionary implements Serializable {
     private final Map<Integer, String> reversePredicateMap = new HashMap<>();
     private final Map<Integer, String> reverseObjectMap = new HashMap<>();
 
-    public SerializableDictionary() {
-        // Populate these maps based on your actual dictionary
-        // For example, you might iterate over the entries in your existing Dictionary
-        // and fill these maps accordingly
-        populateMaps();
-    }
+    private static final Logger logger = Logger.getLogger(SerializableDictionary.class.getName());
 
-    private void populateMaps() {
-        // Example population of the maps
+    public SerializableDictionary() {
+        // Initialize with hypothetical values
         subjectMap.put("http://example.org/subject1", 1);
         predicateMap.put("http://xmlns.com/foaf/0.1/name", 2);
-        objectMap.put("http://example.org/object1", 3);
+        predicateMap.put("http://xmlns.com/foaf/0.1/mbox", 3);
+        objectMap.put("http://example.org/object1", 4);
 
         reverseSubjectMap.put(1, "http://example.org/subject1");
         reversePredicateMap.put(2, "http://xmlns.com/foaf/0.1/name");
-        reverseObjectMap.put(3, "http://example.org/object1");
+        reversePredicateMap.put(3, "http://xmlns.com/foaf/0.1/mbox");
+        reverseObjectMap.put(4, "http://example.org/object1");
     }
 
     public int stringToID(String value, TripleComponentRole role) {
@@ -51,7 +47,7 @@ public class SerializableDictionary implements Serializable {
             default:
                 throw new IllegalArgumentException("Unknown TripleComponentRole: " + role);
         }
-        logger.info("stringToID: value=" + value + ", role=" + role + ", id=" + id);
+        logger.info(String.format("stringToID: value=%s, role=%s, id=%d", value, role, id));
         return id;
     }
 
@@ -70,19 +66,12 @@ public class SerializableDictionary implements Serializable {
             default:
                 throw new IllegalArgumentException("Unknown TripleComponentRole: " + role);
         }
-        logger.info("idToString: id=" + id + ", role=" + role + ", value=" + value);
+        logger.info(String.format("idToString: id=%d, role=%s, value=%s", id, role, value));
         return value;
     }
 
     @Override
     public String toString() {
-        return "SerializableDictionary{" +
-                "subjectMap=" + subjectMap +
-                ", predicateMap=" + predicateMap +
-                ", objectMap=" + objectMap +
-                ", reverseSubjectMap=" + reverseSubjectMap +
-                ", reversePredicateMap=" + reversePredicateMap +
-                ", reverseObjectMap=" + reverseObjectMap +
-                '}';
+        return "SerializableDictionary{...}";
     }
 }

@@ -6,67 +6,34 @@ import org.apache.jena.graph.NodeFactory;
 import sparql2flinkhdt.runner.SerializableDictionary;
 import org.rdfhdt.hdt.enums.TripleComponentRole;
 
+import java.util.logging.Logger;
+
 public class TripleIDConvert {
 
+    private static final Logger logger = Logger.getLogger(TripleIDConvert.class.getName());
+
     public static Node idToString(SerializableDictionary dictionary, Integer[] id) {
-        Node element;
-        if (id[1] == 1) {
-            element = NodeFactory.createURI(dictionary.idToString(id[0], TripleComponentRole.SUBJECT));
-        } else if (id[1] == 2) {
-            element = NodeFactory.createURI(dictionary.idToString(id[0], TripleComponentRole.PREDICATE));
-        } else {
-            element = NodeFactory.createURI(dictionary.idToString(id[0], TripleComponentRole.OBJECT));
+        String uri = dictionary.idToString(id[0], getRole(id[1]));
+        if (uri == null) {
+            logger.severe("idToString: URI is null for id: " + id[0] + ", role: " + getRole(id[1]));
+            return null;
         }
-        return element;
+        return NodeFactory.createURI(uri);
     }
 
     public static Node idToStringFilter(SerializableDictionary dictionary, Integer[] id) {
-        Node element = null;
-        if (id[1] == 1) {
-            element = NodeFactory.createURI(dictionary.idToString(id[0], TripleComponentRole.SUBJECT));
-        } else if (id[1] == 2) {
-            element = NodeFactory.createURI(dictionary.idToString(id[0], TripleComponentRole.PREDICATE));
-        } else {
-            String object = dictionary.idToString(id[0], TripleComponentRole.OBJECT);
-            if(object.contains("^^")){
-                int start = 1, end = object.indexOf("^")-1, hashtag = object.indexOf("#")+1;
-                switch (object.substring(hashtag, object.length()-1)) {
-                    case "integer":
-                        element = NodeFactory.createLiteral(object.substring(start, end), XSDDatatype.XSDint);
-                        break;
-                    case "boolean":
-                        element = NodeFactory.createLiteral(object.substring(start, end), XSDDatatype.XSDboolean);
-                        break;
-                    case "dateTime":
-                        element = NodeFactory.createLiteral(object.substring(start, end), XSDDatatype.XSDdateTime);
-                        break;
-                    case "date":
-                        element = NodeFactory.createLiteral(object.substring(start, end), XSDDatatype.XSDdate);
-                        break;
-                    case "decimal":
-                        element = NodeFactory.createLiteral(object.substring(start, end), XSDDatatype.XSDdecimal);
-                        break;
-                    case "double":
-                        element = NodeFactory.createLiteral(object.substring(start, end), XSDDatatype.XSDdouble);
-                        break;
-                    case "byte":
-                        element = NodeFactory.createLiteral(object.substring(start, end), XSDDatatype.XSDbyte);
-                        break;
-                    case "float":
-                        element = NodeFactory.createLiteral(object.substring(start, end), XSDDatatype.XSDfloat);
-                        break;
-                    case "long":
-                        element = NodeFactory.createLiteral(object.substring(start, end), XSDDatatype.XSDlong);
-                        break;
-                    case "string":
-                        element = NodeFactory.createLiteral(object.substring(start, end), XSDDatatype.XSDstring);
-                        break;
-                }
-            } else {
-                element = NodeFactory.createURI(object);
-            }
+        TripleComponentRole role = getRole(id[1]);
+        String uri = dictionary.idToString(id[0], role);
+        if (uri == null) {
+            logger.severe("idToStringFilter: URI is null for id: " + id[0] + ", role: " + role);
+            return null;
         }
-        return element;
+
+        if (role == TripleComponentRole.OBJECT && uri.contains("^^")) {
+            return createLiteralNode(uri);
+        } else {
+            return NodeFactory.createURI(uri);
+        }
     }
 
     public static Integer stringToIDSubject(SerializableDictionary dictionary, String element) {
@@ -79,5 +46,45 @@ public class TripleIDConvert {
 
     public static Integer stringToIDObject(SerializableDictionary dictionary, String element) {
         return dictionary.stringToID(element, TripleComponentRole.OBJECT);
+    }
+
+    private static TripleComponentRole getRole(int roleCode) {
+        switch (roleCode) {
+            case 1: return TripleComponentRole.SUBJECT;
+            case 2: return TripleComponentRole.PREDICATE;
+            case 3: return TripleComponentRole.OBJECT;
+            default: throw new IllegalArgumentException("Unknown role code: " + roleCode);
+        }
+    }
+
+    private static Node createLiteralNode(String object) {
+        int start = 1, end = object.indexOf("^") - 1, hashtag = object.indexOf("#") + 1;
+        String literalValue = object.substring(start, end);
+        String dataType = object.substring(hashtag, object.length() - 1);
+
+        switch (dataType) {
+            case "integer":
+                return NodeFactory.createLiteral(literalValue, XSDDatatype.XSDint);
+            case "boolean":
+                return NodeFactory.createLiteral(literalValue, XSDDatatype.XSDboolean);
+            case "dateTime":
+                return NodeFactory.createLiteral(literalValue, XSDDatatype.XSDdateTime);
+            case "date":
+                return NodeFactory.createLiteral(literalValue, XSDDatatype.XSDdate);
+            case "decimal":
+                return NodeFactory.createLiteral(literalValue, XSDDatatype.XSDdecimal);
+            case "double":
+                return NodeFactory.createLiteral(literalValue, XSDDatatype.XSDdouble);
+            case "byte":
+                return NodeFactory.createLiteral(literalValue, XSDDatatype.XSDbyte);
+            case "float":
+                return NodeFactory.createLiteral(literalValue, XSDDatatype.XSDfloat);
+            case "long":
+                return NodeFactory.createLiteral(literalValue, XSDDatatype.XSDlong);
+            case "string":
+                return NodeFactory.createLiteral(literalValue, XSDDatatype.XSDstring);
+            default:
+                throw new IllegalArgumentException("Unknown data type: " + dataType);
+        }
     }
 }
