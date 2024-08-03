@@ -8,8 +8,8 @@ import java.util.logging.Logger;
 
 public class TripleID2TripleString implements MapFunction<SolutionMappingHDT, SolutionMappingURI> {
 
-    private static final Logger logger = Logger.getLogger(TripleID2TripleString.class.getName());
     private SerializableDictionary dictionary;
+    private static final Logger logger = Logger.getLogger(TripleID2TripleString.class.getName());
 
     public TripleID2TripleString(SerializableDictionary dictionary) {
         this.dictionary = dictionary;
@@ -22,9 +22,10 @@ public class TripleID2TripleString implements MapFunction<SolutionMappingHDT, So
             Integer[] id = sm.getMapping().get(var);
             Node node = TripleIDConvert.idToString(dictionary, id);
             if (node == null) {
-                logger.severe("map: Node is null for variable: " + var + ", id: " + id);
+                logger.severe("map: Node is null for var: " + var + ", id: " + id[0]);
+            } else {
+                smURI.putMapping(var, node);
             }
-            smURI.putMapping(var, node);
         }
         return smURI;
     }

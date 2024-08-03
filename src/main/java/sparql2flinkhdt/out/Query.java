@@ -1,21 +1,16 @@
 package sparql2flinkhdt.out;
 
 import org.apache.flink.api.java.DataSet;
-import org.apache.flink.api.common.operators.Order;
 import org.apache.flink.api.java.ExecutionEnvironment;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.core.fs.FileSystem;
-import org.apache.jena.graph.Node;
-import org.rdfhdt.hdt.dictionary.Dictionary;
 import org.rdfhdt.hdt.hdt.HDT;
 import org.rdfhdt.hdt.triples.IteratorTripleID;
 import org.rdfhdt.hdt.triples.TripleID;
 import sparql2flinkhdt.runner.SerializableDictionary;
-import sparql2flinkhdt.runner.functions.*;
 import sparql2flinkhdt.runner.LoadTriples;
-import sparql2flinkhdt.runner.functions.order.*;
+import sparql2flinkhdt.runner.functions.*;
 
-import java.math.*;
 import java.util.ArrayList;
 
 public class Query {
@@ -27,7 +22,6 @@ public class Query {
 			return;
 		}
 
-		//************ Environment (DataSet) and Source (static RDF dataset) ************
 		final ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
 		HDT hdt = LoadTriples.fromDataset(env, params.get("dataset"));
 
@@ -40,13 +34,11 @@ public class Query {
 
 		DataSet<TripleID> dataset = env.fromCollection(listTripleID);
 
-		//************ Creating SerializableDictionary ************
+		// Creating SerializableDictionary
 		SerializableDictionary serializableDictionary = new SerializableDictionary();
-		// Here you might need to load the data from HDT dictionary to SerializableDictionary
-		// For example:
-		// serializableDictionary.loadFromHDTDictionary(hdt.getDictionary());
+		serializableDictionary.loadFromHDTDictionary(hdt.getDictionary());
 
-		//************ Applying Transformations ************
+		// Applying Transformations
 		DataSet<SolutionMappingHDT> sm1 = dataset
 				.filter(new Triple2Triple(serializableDictionary, null, "http://xmlns.com/foaf/0.1/name", null))
 				.map(new Triple2SolutionMapping("?person", null, "?name", serializableDictionary));
@@ -66,7 +58,7 @@ public class Query {
 		DataSet<SolutionMappingURI> sm5 = sm4
 				.map(new TripleID2TripleString(serializableDictionary));
 
-		//************ Sink  ************
+		// Sink
 		sm5.writeAsText(params.get("output") + "Query-Flink-Result", FileSystem.WriteMode.OVERWRITE)
 				.setParallelism(1);
 

@@ -13,6 +13,11 @@ public class TripleIDConvert {
     private static final Logger logger = Logger.getLogger(TripleIDConvert.class.getName());
 
     public static Node idToString(SerializableDictionary dictionary, Integer[] id) {
+        if (id == null || id.length != 2) {
+            logger.severe("idToString: Invalid ID array: " + id);
+            return null;
+        }
+
         String uri = dictionary.idToString(id[0], getRole(id[1]));
         if (uri == null) {
             logger.severe("idToString: URI is null for id: " + id[0] + ", role: " + getRole(id[1]));
@@ -22,6 +27,11 @@ public class TripleIDConvert {
     }
 
     public static Node idToStringFilter(SerializableDictionary dictionary, Integer[] id) {
+        if (id == null || id.length != 2) {
+            logger.severe("idToStringFilter: Invalid ID array: " + id);
+            return null;
+        }
+
         TripleComponentRole role = getRole(id[1]);
         String uri = dictionary.idToString(id[0], role);
         if (uri == null) {
@@ -50,41 +60,48 @@ public class TripleIDConvert {
 
     private static TripleComponentRole getRole(int roleCode) {
         switch (roleCode) {
-            case 1: return TripleComponentRole.SUBJECT;
-            case 2: return TripleComponentRole.PREDICATE;
-            case 3: return TripleComponentRole.OBJECT;
-            default: throw new IllegalArgumentException("Unknown role code: " + roleCode);
+            case 1:
+                return TripleComponentRole.SUBJECT;
+            case 2:
+                return TripleComponentRole.PREDICATE;
+            case 3:
+                return TripleComponentRole.OBJECT;
+            default:
+                throw new IllegalArgumentException("Unknown role code: " + roleCode);
         }
     }
 
     private static Node createLiteralNode(String object) {
-        int start = 1, end = object.indexOf("^") - 1, hashtag = object.indexOf("#") + 1;
-        String literalValue = object.substring(start, end);
-        String dataType = object.substring(hashtag, object.length() - 1);
+        int start = object.indexOf("\"") + 1;
+        int end = object.indexOf("\"^^");
+        int hashtag = object.indexOf("#") + 1;
 
-        switch (dataType) {
+        String value = object.substring(start, end);
+        String type = object.substring(hashtag, object.length() - 1);
+
+        switch (type) {
             case "integer":
-                return NodeFactory.createLiteral(literalValue, XSDDatatype.XSDint);
+                return NodeFactory.createLiteral(value, XSDDatatype.XSDint);
             case "boolean":
-                return NodeFactory.createLiteral(literalValue, XSDDatatype.XSDboolean);
+                return NodeFactory.createLiteral(value, XSDDatatype.XSDboolean);
             case "dateTime":
-                return NodeFactory.createLiteral(literalValue, XSDDatatype.XSDdateTime);
+                return NodeFactory.createLiteral(value, XSDDatatype.XSDdateTime);
             case "date":
-                return NodeFactory.createLiteral(literalValue, XSDDatatype.XSDdate);
+                return NodeFactory.createLiteral(value, XSDDatatype.XSDdate);
             case "decimal":
-                return NodeFactory.createLiteral(literalValue, XSDDatatype.XSDdecimal);
+                return NodeFactory.createLiteral(value, XSDDatatype.XSDdecimal);
             case "double":
-                return NodeFactory.createLiteral(literalValue, XSDDatatype.XSDdouble);
+                return NodeFactory.createLiteral(value, XSDDatatype.XSDdouble);
             case "byte":
-                return NodeFactory.createLiteral(literalValue, XSDDatatype.XSDbyte);
+                return NodeFactory.createLiteral(value, XSDDatatype.XSDbyte);
             case "float":
-                return NodeFactory.createLiteral(literalValue, XSDDatatype.XSDfloat);
+                return NodeFactory.createLiteral(value, XSDDatatype.XSDfloat);
             case "long":
-                return NodeFactory.createLiteral(literalValue, XSDDatatype.XSDlong);
+                return NodeFactory.createLiteral(value, XSDDatatype.XSDlong);
             case "string":
-                return NodeFactory.createLiteral(literalValue, XSDDatatype.XSDstring);
+                return NodeFactory.createLiteral(value, XSDDatatype.XSDstring);
             default:
-                throw new IllegalArgumentException("Unknown data type: " + dataType);
+                return NodeFactory.createLiteral(value);
         }
     }
 }

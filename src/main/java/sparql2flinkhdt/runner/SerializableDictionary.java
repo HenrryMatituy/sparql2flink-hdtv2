@@ -1,7 +1,7 @@
 package sparql2flinkhdt.runner;
 
+import org.rdfhdt.hdt.dictionary.Dictionary;
 import org.rdfhdt.hdt.enums.TripleComponentRole;
-
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,33 +19,66 @@ public class SerializableDictionary implements Serializable {
 
     private static final Logger logger = Logger.getLogger(SerializableDictionary.class.getName());
 
-    public SerializableDictionary() {
-        // Initialize with hypothetical values
-        subjectMap.put("http://example.org/subject1", 1);
-        predicateMap.put("http://xmlns.com/foaf/0.1/name", 2);
-        predicateMap.put("http://xmlns.com/foaf/0.1/mbox", 3);
-        objectMap.put("http://example.org/object1", 4);
+    public void loadFromHDTDictionary(Dictionary dictionary) {
+        loadSection(dictionary, TripleComponentRole.SUBJECT);
+        loadSection(dictionary, TripleComponentRole.PREDICATE);
+        loadSection(dictionary, TripleComponentRole.OBJECT);
+    }
 
-        reverseSubjectMap.put(1, "http://example.org/subject1");
-        reversePredicateMap.put(2, "http://xmlns.com/foaf/0.1/name");
-        reversePredicateMap.put(3, "http://xmlns.com/foaf/0.1/mbox");
-        reverseObjectMap.put(4, "http://example.org/object1");
+    private void loadSection(Dictionary dictionary, TripleComponentRole role) {
+        int numEntries = 0;
+        switch (role) {
+            case SUBJECT:
+                numEntries = Math.toIntExact(dictionary.getNsubjects());
+                break;
+            case PREDICATE:
+                numEntries = Math.toIntExact(dictionary.getNpredicates());
+                break;
+            case OBJECT:
+                numEntries = Math.toIntExact(dictionary.getNobjects());
+                break;
+        }
+
+        for (int i = 1; i <= numEntries; i++) {
+            String uri = null;
+            switch (role) {
+                case SUBJECT:
+                    uri = String.valueOf(dictionary.idToString(i, TripleComponentRole.SUBJECT));
+                    subjectMap.put(uri, i);
+                    reverseSubjectMap.put(i, uri);
+                    break;
+                case PREDICATE:
+                    uri = String.valueOf(dictionary.idToString(i, TripleComponentRole.PREDICATE));
+                    predicateMap.put(uri, i);
+                    reversePredicateMap.put(i, uri);
+                    break;
+                case OBJECT:
+                    uri = String.valueOf(dictionary.idToString(i, TripleComponentRole.OBJECT));
+                    objectMap.put(uri, i);
+                    reverseObjectMap.put(i, uri);
+                    break;
+            }
+        }
     }
 
     public int stringToID(String value, TripleComponentRole role) {
-        int id;
+        Integer id;
         switch (role) {
             case SUBJECT:
-                id = subjectMap.getOrDefault(value, -1);
+                id = subjectMap.get(value);
                 break;
             case PREDICATE:
-                id = predicateMap.getOrDefault(value, -1);
+                id = predicateMap.get(value);
                 break;
             case OBJECT:
-                id = objectMap.getOrDefault(value, -1);
+                id = objectMap.get(value);
                 break;
             default:
                 throw new IllegalArgumentException("Unknown TripleComponentRole: " + role);
+        }
+        if (id == null) {
+            logger.severe("stringToID: No ID found for value: " + value + ", role: " + role);
+            return -1;
         }
         logger.info(String.format("stringToID: value=%s, role=%s, id=%d", value, role, id));
         return id;
@@ -65,6 +98,10 @@ public class SerializableDictionary implements Serializable {
                 break;
             default:
                 throw new IllegalArgumentException("Unknown TripleComponentRole: " + role);
+        }
+        if (value == null) {
+            logger.severe("idToString: No value found for id: " + id + ", role: " + role);
+            return null;
         }
         logger.info(String.format("idToString: id=%d, role=%s, value=%s", id, role, value));
         return value;

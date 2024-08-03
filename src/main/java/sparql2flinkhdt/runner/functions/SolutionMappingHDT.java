@@ -1,8 +1,8 @@
 package sparql2flinkhdt.runner.functions;
 
-import org.apache.jena.sparql.expr.Expr;
 import org.apache.jena.sparql.sse.SSE;
 import sparql2flinkhdt.runner.SerializableDictionary;
+
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
@@ -10,11 +10,9 @@ import java.util.logging.Logger;
 
 public class SolutionMappingHDT implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final Logger logger = Logger.getLogger(SolutionMappingHDT.class.getName());
     private HashMap<String, Integer[]> mapping = new HashMap<>();
     private SerializableDictionary serializableDictionary;
-
-    private static final Logger logger = Logger.getLogger(SolutionMappingHDT.class.getName());
 
     public SolutionMappingHDT() {}
 
@@ -36,7 +34,6 @@ public class SolutionMappingHDT implements Serializable {
 
     public void putMapping(String var, Integer[] val) {
         mapping.put(var, val);
-        logger.info(String.format("putMapping: var=%s, val=%s", var, val));
     }
 
     public Integer[] getValue(String var) {
@@ -44,8 +41,12 @@ public class SolutionMappingHDT implements Serializable {
     }
 
     public boolean existMapping(String var, Integer val) {
-        boolean flag = mapping.containsKey(var) && mapping.get(var)[0].equals(val);
-        logger.info(String.format("existMapping: var=%s, val=%d, exists=%b", var, val, flag));
+        Boolean flag = false;
+        if (mapping.containsKey(var)) {
+            if (mapping.get(var)[0] == val) {
+                flag = true;
+            }
+        }
         return flag;
     }
 
@@ -90,10 +91,8 @@ public class SolutionMappingHDT implements Serializable {
     }
 
     public boolean filter(SerializableDictionary dictionary, String expression) {
-        Expr expr = SSE.parseExpr(expression);
-        boolean result = FilterConvert.convert(dictionary, expr, this.mapping);
-        logger.info(String.format("filter: expression=%s, result=%b", expression, result));
-        return result;
+        // Assuming FilterConvert is a valid class for your case
+        return FilterConvert.convert(dictionary, SSE.parseExpr(expression), this.mapping);
     }
 
     @Override
