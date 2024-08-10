@@ -20,44 +20,29 @@ public class SerializableDictionary implements Serializable {
     private static final Logger logger = Logger.getLogger(SerializableDictionary.class.getName());
 
     public void loadFromHDTDictionary(Dictionary dictionary) {
-        loadSection(dictionary, TripleComponentRole.SUBJECT);
-        loadSection(dictionary, TripleComponentRole.PREDICATE);
-        loadSection(dictionary, TripleComponentRole.OBJECT);
+        loadSection(dictionary.getSubjects(), TripleComponentRole.SUBJECT);
+        loadSection(dictionary.getPredicates(), TripleComponentRole.PREDICATE);
+        loadSection(dictionary.getObjects(), TripleComponentRole.OBJECT);
     }
 
-    private void loadSection(Dictionary dictionary, TripleComponentRole role) {
-        int numEntries = 0;
-        switch (role) {
-            case SUBJECT:
-                numEntries = Math.toIntExact(dictionary.getNsubjects());
-                break;
-            case PREDICATE:
-                numEntries = Math.toIntExact(dictionary.getNpredicates());
-                break;
-            case OBJECT:
-                numEntries = Math.toIntExact(dictionary.getNobjects());
-                break;
-        }
-
-        for (int i = 1; i <= numEntries; i++) {
-            String uri = null;
+    private void loadSection(Iterable<String> section, TripleComponentRole role) {
+        int id = 1; // Asumimos que los IDs empiezan en 1, ajusta según sea necesario
+        for (String uri : section) {
             switch (role) {
                 case SUBJECT:
-                    uri = String.valueOf(dictionary.idToString(i, TripleComponentRole.SUBJECT));
-                    subjectMap.put(uri, i);
-                    reverseSubjectMap.put(i, uri);
+                    subjectMap.put(uri, id);
+                    reverseSubjectMap.put(id, uri);
                     break;
                 case PREDICATE:
-                    uri = String.valueOf(dictionary.idToString(i, TripleComponentRole.PREDICATE));
-                    predicateMap.put(uri, i);
-                    reversePredicateMap.put(i, uri);
+                    predicateMap.put(uri, id);
+                    reversePredicateMap.put(id, uri);
                     break;
                 case OBJECT:
-                    uri = String.valueOf(dictionary.idToString(i, TripleComponentRole.OBJECT));
-                    objectMap.put(uri, i);
-                    reverseObjectMap.put(i, uri);
+                    objectMap.put(uri, id);
+                    reverseObjectMap.put(id, uri);
                     break;
             }
+            id++;
         }
     }
 
