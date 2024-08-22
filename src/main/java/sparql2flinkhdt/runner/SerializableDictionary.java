@@ -20,31 +20,47 @@ public class SerializableDictionary implements Serializable {
     private static final Logger logger = Logger.getLogger(SerializableDictionary.class.getName());
 
     public void loadFromHDTDictionary(Dictionary dictionary) {
-        loadSection(dictionary.getSubjects(), TripleComponentRole.SUBJECT);
-        loadSection(dictionary.getPredicates(), TripleComponentRole.PREDICATE);
-        loadSection(dictionary.getObjects(), TripleComponentRole.OBJECT);
+        loadSection(dictionary, TripleComponentRole.SUBJECT);
+        loadSection(dictionary, TripleComponentRole.PREDICATE);
+        loadSection(dictionary, TripleComponentRole.OBJECT);
     }
 
-    private void loadSection(Iterable<String> section, TripleComponentRole role) {
-        int id = 1; // Asumimos que los IDs empiezan en 1, ajusta según sea necesario
-        for (String uri : section) {
+    private void loadSection(Dictionary dictionary, TripleComponentRole role) {
+        int numEntries = 0;
+        switch (role) {
+            case SUBJECT:
+                numEntries = Math.toIntExact(dictionary.getNsubjects());
+                break;
+            case PREDICATE:
+                numEntries = Math.toIntExact(dictionary.getNpredicates());
+                break;
+            case OBJECT:
+                numEntries = Math.toIntExact(dictionary.getNobjects());
+                break;
+        }
+
+        for (int i = 1; i <= numEntries; i++) {
+            String uri = null;
             switch (role) {
                 case SUBJECT:
-                    subjectMap.put(uri, id);
-                    reverseSubjectMap.put(id, uri);
+                    uri = dictionary.idToString(i, TripleComponentRole.SUBJECT).toString(); // Convertir DelayedString a String
+                    subjectMap.put(uri, i);
+                    reverseSubjectMap.put(i, uri);
                     break;
                 case PREDICATE:
-                    predicateMap.put(uri, id);
-                    reversePredicateMap.put(id, uri);
+                    uri = dictionary.idToString(i, TripleComponentRole.PREDICATE).toString(); // Convertir DelayedString a String
+                    predicateMap.put(uri, i);
+                    reversePredicateMap.put(i, uri);
                     break;
                 case OBJECT:
-                    objectMap.put(uri, id);
-                    reverseObjectMap.put(id, uri);
+                    uri = dictionary.idToString(i, TripleComponentRole.OBJECT).toString(); // Convertir DelayedString a String
+                    objectMap.put(uri, i);
+                    reverseObjectMap.put(i, uri);
                     break;
             }
-            id++;
         }
     }
+
 
     public int stringToID(String value, TripleComponentRole role) {
         Integer id;
