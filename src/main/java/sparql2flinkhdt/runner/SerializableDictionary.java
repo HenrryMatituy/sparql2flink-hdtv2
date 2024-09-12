@@ -25,41 +25,96 @@ public class SerializableDictionary implements Serializable {
         loadSection(dictionary, TripleComponentRole.OBJECT);
     }
 
+//    private void loadSection(Dictionary dictionary, TripleComponentRole role) {
+//        int numEntries = 0;
+//        switch (role) {
+//            case SUBJECT:
+//                numEntries = Math.toIntExact(dictionary.getNsubjects());
+//                break;
+//            case PREDICATE:
+//                numEntries = Math.toIntExact(dictionary.getNpredicates());
+//                break;
+//            case OBJECT:
+//                numEntries = Math.toIntExact(dictionary.getNobjects());
+//                break;
+//        }
+//
+////        for (int i = 1; i <= numEntries; i++) {
+////            String uri = null;
+////            switch (role) {
+////                case SUBJECT:
+////                    uri = (String) dictionary.idToString(i, role);
+////                    subjectMap.put(uri, i);
+////                    reverseSubjectMap.put(i, uri);
+////                    break;
+////                case PREDICATE:
+////                    uri = String.valueOf(dictionary.idToString(i, TripleComponentRole.PREDICATE));
+////                    predicateMap.put(uri, i);
+////                    reversePredicateMap.put(i, uri);
+////                    break;
+////                case OBJECT:
+////                    uri = String.valueOf(dictionary.idToString(i, TripleComponentRole.OBJECT));
+////                    objectMap.put(uri, i);
+////                    reverseObjectMap.put(i, uri);
+////                    break;
+////            }
+////        }
+//
+//        for (int i = 1; i <= numEntries; i++) {
+//            String uri = dictionary.idToString(i, role);  // Sin String.valueOf
+//            if (uri != null && !uri.isEmpty()) {
+//                map.put(uri, i);
+//                reverseMap.put(i, uri);
+//            } else {
+//                logger.warning("Empty or null URI for role: " + role + " and ID: " + i);
+//            }
+//        }
+//    }
+
     private void loadSection(Dictionary dictionary, TripleComponentRole role) {
         int numEntries = 0;
+        Map<String, Integer> map = null;
+        Map<Integer, String> reverseMap = null;
+
+        // Identificar el rol y asignar los mapas correspondientes
         switch (role) {
             case SUBJECT:
                 numEntries = Math.toIntExact(dictionary.getNsubjects());
+                map = subjectMap;
+                reverseMap = reverseSubjectMap;
+                logger.info("Cargando SUBJECTs: " + numEntries);
                 break;
             case PREDICATE:
                 numEntries = Math.toIntExact(dictionary.getNpredicates());
+                map = predicateMap;
+                reverseMap = reversePredicateMap;
+                logger.info("Cargando PREDICATEs: " + numEntries);
                 break;
             case OBJECT:
                 numEntries = Math.toIntExact(dictionary.getNobjects());
+                map = objectMap;
+                reverseMap = reverseObjectMap;
+                logger.info("Cargando OBJECTs: " + numEntries);
                 break;
+            default:
+                throw new IllegalArgumentException("Unknown TripleComponentRole: " + role);
         }
 
+        // Procesar cada entrada de la sección
         for (int i = 1; i <= numEntries; i++) {
-            String uri = null;
-            switch (role) {
-                case SUBJECT:
-                    uri = dictionary.idToString(i, TripleComponentRole.SUBJECT).toString(); // Convertir DelayedString a String
-                    subjectMap.put(uri, i);
-                    reverseSubjectMap.put(i, uri);
-                    break;
-                case PREDICATE:
-                    uri = dictionary.idToString(i, TripleComponentRole.PREDICATE).toString(); // Convertir DelayedString a String
-                    predicateMap.put(uri, i);
-                    reversePredicateMap.put(i, uri);
-                    break;
-                case OBJECT:
-                    uri = dictionary.idToString(i, TripleComponentRole.OBJECT).toString(); // Convertir DelayedString a String
-                    objectMap.put(uri, i);
-                    reverseObjectMap.put(i, uri);
-                    break;
+            Object result = dictionary.idToString(i, role);  // Obtener el valor del diccionario
+            String uri = result != null ? result.toString() : null;
+
+            if (uri != null && !uri.isEmpty()) {
+                map.put(uri, i);
+                reverseMap.put(i, uri);
+                logger.info(String.format("ID=%d, Role=%s, URI=%s", i, role, uri));  // Log de cada URI y su rol
+            } else {
+                logger.warning(String.format("URI vacía o nula para el ID=%d, Role=%s", i, role));
             }
         }
     }
+
 
 
     public int stringToID(String value, TripleComponentRole role) {

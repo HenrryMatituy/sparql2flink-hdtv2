@@ -6,6 +6,7 @@ import org.apache.jena.graph.NodeFactory;
 import sparql2flinkhdt.runner.SerializableDictionary;
 import org.rdfhdt.hdt.enums.TripleComponentRole;
 
+import java.util.Arrays;
 import java.util.logging.Logger;
 
 public class TripleIDConvert {
@@ -24,26 +25,6 @@ public class TripleIDConvert {
             return null;
         }
         return NodeFactory.createURI(uri);
-    }
-
-    public static Node idToStringFilter(SerializableDictionary dictionary, Integer[] id) {
-        if (id == null || id.length != 2) {
-            logger.severe("idToStringFilter: Invalid ID array: " + id);
-            return null;
-        }
-
-        TripleComponentRole role = getRole(id[1]);
-        String uri = dictionary.idToString(id[0], role);
-        if (uri == null) {
-            logger.severe("idToStringFilter: URI is null for id: " + id[0] + ", role: " + role);
-            return null;
-        }
-
-        if (role == TripleComponentRole.OBJECT && uri.contains("^^")) {
-            return createLiteralNode(uri);
-        } else {
-            return NodeFactory.createURI(uri);
-        }
     }
 
     public static Integer stringToIDSubject(SerializableDictionary dictionary, String element) {
@@ -68,6 +49,29 @@ public class TripleIDConvert {
                 return TripleComponentRole.OBJECT;
             default:
                 throw new IllegalArgumentException("Unknown role code: " + roleCode);
+        }
+    }
+
+    public static Node idToStringFilter(SerializableDictionary dictionary, Integer[] id) {
+        if (id == null || id.length != 2) {
+            logger.severe("idToStringFilter: Invalid ID array: " + Arrays.toString(id));
+            return null;
+        }
+
+        TripleComponentRole role = getRole(id[1]);
+        String uri = dictionary.idToString(id[0], role);
+
+        if (uri == null) {
+            logger.severe("idToStringFilter: URI is null for id: " + id[0] + ", role: " + role);
+            return null;
+        }
+
+        // Si es un literal con un tipo de dato, intentamos crear un nodo literal con el tipo XSD adecuado
+        if (role == TripleComponentRole.OBJECT && uri.contains("^^")) {
+            return createLiteralNode(uri);  // Creación de nodos literales con tipos de datos XSD
+        } else {
+            // Si no es un literal, devolvemos el nodo URI normal
+            return NodeFactory.createURI(uri);
         }
     }
 
@@ -101,7 +105,9 @@ public class TripleIDConvert {
             case "string":
                 return NodeFactory.createLiteral(value, XSDDatatype.XSDstring);
             default:
-                return NodeFactory.createLiteral(value);
+                return NodeFactory.createLiteral(value);  // Caso por defecto sin tipo explícito
         }
     }
+
+
 }

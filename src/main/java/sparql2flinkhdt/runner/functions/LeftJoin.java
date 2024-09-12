@@ -8,6 +8,8 @@ public class LeftJoin implements FlatJoinFunction<SolutionMappingHDT, SolutionMa
 
     @Override
     public void join(SolutionMappingHDT left, SolutionMappingHDT right, Collector<SolutionMappingHDT> out) throws Exception {
-        out.collect(left.leftJoin(right));
+        SolutionMappingHDT result = left.leftJoin(right);
+        out.collect(result);
     }
+
 }
