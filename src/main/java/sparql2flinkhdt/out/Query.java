@@ -47,6 +47,19 @@ public class Query {
 				.filter(new Triple2Triple(serializableDictionary, null, "http://xmlns.com/foaf/0.1/mbox", null))
 				.map(new Triple2SolutionMapping("?person", null, "?mbox", serializableDictionary));
 
+//		System.out.println("prueba sm1: " + sm1.collect());  // Imprimir todos los datos de sm1
+//		System.out.println("prueba sm2: " + sm2.collect());  // Imprimir todos los datos de sm2
+		System.out.println("Verificando serialización de sm1: " + sm1.getClass().getName());
+		System.out.println("Verificando serialización de sm2: " + sm2.getClass().getName());
+//		System.out.println("Cantidad en sm1: " + sm1.count());
+//		System.out.println("Cantidad en sm2: " + sm2.count());
+
+		System.out.println("Antes de contar sm1");
+		sm1.print();
+		System.out.println("Imprimió");
+		System.out.println("Cantidad en sm1: " + sm1.count());
+		System.out.println("Después de contar sm1");
+
 		DataSet<SolutionMappingHDT> sm3 = sm1.leftOuterJoin(sm2)
 				.where(new JoinKeySelector(new String[]{"?person"}))
 				.equalTo(new JoinKeySelector(new String[]{"?person"}))

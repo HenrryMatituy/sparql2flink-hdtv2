@@ -137,7 +137,14 @@ public class SerializableDictionary implements Serializable {
             return -1;
         }
         logger.info(String.format("stringToID: value=%s, role=%s, id=%d", value, role, id));
-        return id;
+        // Prueba forzada
+//        logger.info("Prueba forzada con SUBJECT");
+//        stringToID("http://example.org/alice", TripleComponentRole.SUBJECT);
+//
+//        logger.info("Prueba forzada con OBJECT");
+//        stringToID("http://example.org/alice", TripleComponentRole.OBJECT);
+      return id;
+
     }
 
     public String idToString(int id, TripleComponentRole role) {
