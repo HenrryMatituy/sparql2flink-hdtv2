@@ -25,6 +25,117 @@ public class SerializableDictionary implements Serializable {
         loadSection(dictionary, TripleComponentRole.OBJECT);
     }
 
+    private void loadSection(Dictionary dictionary, TripleComponentRole role) {
+        int numEntries = 0;
+        Map<String, Integer> map = null;
+        Map<Integer, String> reverseMap = null;
+
+        // Identificar el rol y asignar los mapas correspondientes
+        switch (role) {
+            case SUBJECT:
+                numEntries = Math.toIntExact(dictionary.getNsubjects());
+                map = subjectMap;
+                reverseMap = reverseSubjectMap;
+                logger.info("Cargando SUBJECTs: " + numEntries);
+                break;
+            case PREDICATE:
+                numEntries = Math.toIntExact(dictionary.getNpredicates());
+                map = predicateMap;
+                reverseMap = reversePredicateMap;
+                logger.info("Cargando PREDICATEs: " + numEntries);
+                break;
+            case OBJECT:
+                numEntries = Math.toIntExact(dictionary.getNobjects());
+                map = objectMap;
+                reverseMap = reverseObjectMap;
+                logger.info("Cargando OBJECTs: " + numEntries);
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown TripleComponentRole: " + role);
+        }
+
+        // Procesar cada entrada de la sección
+        for (int i = 1; i <= numEntries; i++) {
+
+            Object result = dictionary.idToString(i, role);  // Obtener el valor del diccionario
+            String uri = result != null ? result.toString() : null;
+
+            if (uri != null && !uri.isEmpty()) {
+                map.put(uri, i);
+                reverseMap.put(i, uri);
+                logger.info(String.format("IDDDDD=%d, Role=%s, URI=%s", i, role, uri));  // Log de cada URI y su rol
+            } else {
+                logger.warning(String.format("URI vacía o nula para el ID=%d, Role=%s", i, role));
+            }
+        }
+    }
+
+
+
+    public int stringToID(String value, TripleComponentRole role) {
+        Integer id;
+        switch (role) {
+            case SUBJECT:
+                id = subjectMap.get(value);
+                logger.info(String.format("stringToIDDD Sujeto: value=%s, role=%s, id=%d", value, role, id));
+                break;
+            case PREDICATE:
+                id = predicateMap.get(value);
+                logger.info(String.format("stringToIDDD Predicado: value=%s, role=%s, id=%d", value, role, id));
+                break;
+            case OBJECT:
+                id = objectMap.get(value);
+                logger.info(String.format("stringToIDDD Objeto: value=%s, role=%s, id=%d", value, role, id));
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown TripleComponentRole: " + role);
+
+        }
+        if (id == null) {
+            logger.severe("stringToID: No ID found for value: " + value + ", role: " + role);
+            return -1;
+        }
+
+        // Prueba forzada
+//        logger.info("Prueba forzada con SUBJECT");
+//        stringToID("http://example.org/alice", TripleComponentRole.SUBJECT);
+//
+//        logger.info("Prueba forzada con OBJECT");
+//        stringToID("http://example.org/alice", TripleComponentRole.OBJECT);
+      return id;
+
+    }
+
+    public String idToString(int id, TripleComponentRole role) {
+        String value;
+        switch (role) {
+            case SUBJECT:
+                value = reverseSubjectMap.get(id);
+                break;
+            case PREDICATE:
+                value = reversePredicateMap.get(id);
+                break;
+            case OBJECT:
+                value = reverseObjectMap.get(id);
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown TripleComponentRole: " + role);
+        }
+        if (value == null) {
+            logger.severe("idToString: No value found for id: " + id + ", role: " + role);
+            return null;
+        }
+        logger.info(String.format("idToString: id=%d, role=%s, value=%s", id, role, value));
+        return value;
+    }
+
+    @Override
+    public String toString() {
+        return "SerializableDictionary{...}";
+    }
+
+        }
+
 //    private void loadSection(Dictionary dictionary, TripleComponentRole role) {
 //        int numEntries = 0;
 //        switch (role) {
@@ -70,108 +181,3 @@ public class SerializableDictionary implements Serializable {
 //            }
 //        }
 //    }
-
-    private void loadSection(Dictionary dictionary, TripleComponentRole role) {
-        int numEntries = 0;
-        Map<String, Integer> map = null;
-        Map<Integer, String> reverseMap = null;
-
-        // Identificar el rol y asignar los mapas correspondientes
-        switch (role) {
-            case SUBJECT:
-                numEntries = Math.toIntExact(dictionary.getNsubjects());
-                map = subjectMap;
-                reverseMap = reverseSubjectMap;
-                logger.info("Cargando SUBJECTs: " + numEntries);
-                break;
-            case PREDICATE:
-                numEntries = Math.toIntExact(dictionary.getNpredicates());
-                map = predicateMap;
-                reverseMap = reversePredicateMap;
-                logger.info("Cargando PREDICATEs: " + numEntries);
-                break;
-            case OBJECT:
-                numEntries = Math.toIntExact(dictionary.getNobjects());
-                map = objectMap;
-                reverseMap = reverseObjectMap;
-                logger.info("Cargando OBJECTs: " + numEntries);
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown TripleComponentRole: " + role);
-        }
-
-        // Procesar cada entrada de la sección
-        for (int i = 1; i <= numEntries; i++) {
-            Object result = dictionary.idToString(i, role);  // Obtener el valor del diccionario
-            String uri = result != null ? result.toString() : null;
-
-            if (uri != null && !uri.isEmpty()) {
-                map.put(uri, i);
-                reverseMap.put(i, uri);
-                logger.info(String.format("ID=%d, Role=%s, URI=%s", i, role, uri));  // Log de cada URI y su rol
-            } else {
-                logger.warning(String.format("URI vacía o nula para el ID=%d, Role=%s", i, role));
-            }
-        }
-    }
-
-
-
-    public int stringToID(String value, TripleComponentRole role) {
-        Integer id;
-        switch (role) {
-            case SUBJECT:
-                id = subjectMap.get(value);
-                break;
-            case PREDICATE:
-                id = predicateMap.get(value);
-                break;
-            case OBJECT:
-                id = objectMap.get(value);
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown TripleComponentRole: " + role);
-        }
-        if (id == null) {
-            logger.severe("stringToID: No ID found for value: " + value + ", role: " + role);
-            return -1;
-        }
-        logger.info(String.format("stringToID: value=%s, role=%s, id=%d", value, role, id));
-        // Prueba forzada
-//        logger.info("Prueba forzada con SUBJECT");
-//        stringToID("http://example.org/alice", TripleComponentRole.SUBJECT);
-//
-//        logger.info("Prueba forzada con OBJECT");
-//        stringToID("http://example.org/alice", TripleComponentRole.OBJECT);
-      return id;
-
-    }
-
-    public String idToString(int id, TripleComponentRole role) {
-        String value;
-        switch (role) {
-            case SUBJECT:
-                value = reverseSubjectMap.get(id);
-                break;
-            case PREDICATE:
-                value = reversePredicateMap.get(id);
-                break;
-            case OBJECT:
-                value = reverseObjectMap.get(id);
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown TripleComponentRole: " + role);
-        }
-        if (value == null) {
-            logger.severe("idToString: No value found for id: " + id + ", role: " + role);
-            return null;
-        }
-        logger.info(String.format("idToString: id=%d, role=%s, value=%s", id, role, value));
-        return value;
-    }
-
-    @Override
-    public String toString() {
-        return "SerializableDictionary{...}";
-    }
-}

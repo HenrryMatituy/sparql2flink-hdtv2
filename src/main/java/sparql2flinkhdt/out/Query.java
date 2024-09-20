@@ -40,39 +40,52 @@ public class Query {
 
 		// Applying Transformations
 		DataSet<SolutionMappingHDT> sm1 = dataset
-				.filter(new Triple2Triple(serializableDictionary, null, "http://xmlns.com/foaf/0.1/name", null))
+				// Filtramos por el predicado (name) y establecemos que el sujeto y el objeto deben existir
+				.filter(new Triple2Triple(serializableDictionary, "?person", "http://xmlns.com/foaf/0.1/name", "?name"))
+				// El map ahora también se encarga de hacer el mapeo correcto para las variables involucradas
 				.map(new Triple2SolutionMapping("?person", null, "?name", serializableDictionary));
+
+
+
+
+//		DataSet<SolutionMappingHDT> sm1 = dataset
+//				.filter(new Triple2Triple(serializableDictionary, null, "http://xmlns.com/foaf/0.1/name", null))
+//				.map(new Triple2SolutionMapping("?person", null, "?name", serializableDictionary));
+
+		System.out.println("Imprimiendo ms1");
+		sm1.print();
+		System.out.println("Finalizando impresión ms1");
 
 		DataSet<SolutionMappingHDT> sm2 = dataset
 				.filter(new Triple2Triple(serializableDictionary, null, "http://xmlns.com/foaf/0.1/mbox", null))
 				.map(new Triple2SolutionMapping("?person", null, "?mbox", serializableDictionary));
-
-//		System.out.println("prueba sm1: " + sm1.collect());  // Imprimir todos los datos de sm1
+//
+		System.out.println("prueba sm1: " + sm1.collect());  // Imprimir todos los datos de sm1
 //		System.out.println("prueba sm2: " + sm2.collect());  // Imprimir todos los datos de sm2
 		System.out.println("Verificando serialización de sm1: " + sm1.getClass().getName());
-		System.out.println("Verificando serialización de sm2: " + sm2.getClass().getName());
-//		System.out.println("Cantidad en sm1: " + sm1.count());
+//		System.out.println("Verificando serialización de sm2: " + sm2.getClass().getName());
+		System.out.println("Cantidad en sm1: " + sm1.count());
 //		System.out.println("Cantidad en sm2: " + sm2.count());
 
-		System.out.println("Antes de contar sm1");
-		sm1.print();
-		System.out.println("Imprimió");
-		System.out.println("Cantidad en sm1: " + sm1.count());
-		System.out.println("Después de contar sm1");
-
-		DataSet<SolutionMappingHDT> sm3 = sm1.leftOuterJoin(sm2)
-				.where(new JoinKeySelector(new String[]{"?person"}))
-				.equalTo(new JoinKeySelector(new String[]{"?person"}))
-				.with(new LeftJoin());
-
-		DataSet<SolutionMappingHDT> sm4 = sm3
-				.map(new Project(new String[]{"?person", "?name", "?mbox"}));
-
-		DataSet<SolutionMappingURI> sm5 = sm4
-				.map(new TripleID2TripleString(serializableDictionary));
+//		System.out.println("Antes de contar sm1");
+//		sm1.print();
+//		System.out.println("Imprimió");
+//		System.out.println("Cantidad en sm1: " + sm1.count());
+//		System.out.println("Después de contar sm1");
+//
+//		DataSet<SolutionMappingHDT> sm3 = sm1.leftOuterJoin(sm2)
+//				.where(new JoinKeySelector(new String[]{"?person"}))
+//				.equalTo(new JoinKeySelector(new String[]{"?person"}))
+//				.with(new LeftJoin());
+//
+//		DataSet<SolutionMappingHDT> sm4 = sm3
+//				.map(new Project(new String[]{"?person", "?name", "?mbox"}));
+//
+//		DataSet<SolutionMappingURI> sm5 = sm4
+//				.map(new TripleID2TripleString(serializableDictionary));
 
 		// Sink
-		sm5.writeAsText(params.get("output") + "Query-Flink-Result", FileSystem.WriteMode.OVERWRITE)
+		sm1.writeAsText(params.get("output") + "Query-Flink-Result", FileSystem.WriteMode.OVERWRITE)
 				.setParallelism(1);
 
 		env.execute("SPARQL Query to Flink Program - DataSet API");
