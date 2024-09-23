@@ -72,38 +72,64 @@ public class SerializableDictionary implements Serializable {
 
 
 
+//    public int stringToID(String value, TripleComponentRole role) {
+//        Integer id;
+//        switch (role) {
+//            case SUBJECT:
+//                id = subjectMap.get(value);
+//                logger.info(String.format("stringToIDDD Sujeto: value=%s, role=%s, id=%d", value, role, id));
+//                break;
+//            case PREDICATE:
+//                id = predicateMap.get(value);
+//                logger.info(String.format("stringToIDDD Predicado: value=%s, role=%s, id=%d", value, role, id));
+//                break;
+//            case OBJECT:
+//                id = objectMap.get(value);
+//                logger.info(String.format("stringToIDDD Objeto: value=%s, role=%s, id=%d", value, role, id));
+//                break;
+//            default:
+//                throw new IllegalArgumentException("Unknown TripleComponentRole: " + role);
+//
+//        }
+//        if (id == null) {
+//            logger.severe("stringToID: No ID found for value: " + value + ", role: " + role);
+//            return -1;
+//        }
+//
+//        // Prueba forzada
+////        logger.info("Prueba forzada con SUBJECT");
+////        stringToID("http://example.org/alice", TripleComponentRole.SUBJECT);
+////
+////        logger.info("Prueba forzada con OBJECT");
+////        stringToID("http://example.org/alice", TripleComponentRole.OBJECT);
+//      return id;
+//
+//    }
+
     public int stringToID(String value, TripleComponentRole role) {
-        Integer id;
+        Integer id = null;
         switch (role) {
             case SUBJECT:
                 id = subjectMap.get(value);
-                logger.info(String.format("stringToIDDD Sujeto: value=%s, role=%s, id=%d", value, role, id));
+                logger.info(String.format("stringToID Sujeto desde SerializableDictionary: value=%s, role=%s, id=%d",
+                        value, role, id));
                 break;
             case PREDICATE:
                 id = predicateMap.get(value);
-                logger.info(String.format("stringToIDDD Predicado: value=%s, role=%s, id=%d", value, role, id));
+                logger.info(String.format("stringToID Predicado esde SerializableDictionary: value=%s, role=%s, id=%d", value, role, id));
                 break;
             case OBJECT:
                 id = objectMap.get(value);
-                logger.info(String.format("stringToIDDD Objeto: value=%s, role=%s, id=%d", value, role, id));
+                logger.info(String.format("stringToID Objeto esde SerializableDictionary: value=%s, role=%s, id=%d", value, role, id));
                 break;
             default:
                 throw new IllegalArgumentException("Unknown TripleComponentRole: " + role);
-
         }
         if (id == null) {
             logger.severe("stringToID: No ID found for value: " + value + ", role: " + role);
             return -1;
         }
-
-        // Prueba forzada
-//        logger.info("Prueba forzada con SUBJECT");
-//        stringToID("http://example.org/alice", TripleComponentRole.SUBJECT);
-//
-//        logger.info("Prueba forzada con OBJECT");
-//        stringToID("http://example.org/alice", TripleComponentRole.OBJECT);
-      return id;
-
+        return id;
     }
 
     public String idToString(int id, TripleComponentRole role) {
