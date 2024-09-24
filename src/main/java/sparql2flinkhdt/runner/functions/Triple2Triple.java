@@ -17,7 +17,151 @@ public class Triple2Triple implements FilterFunction<TripleID> {
         this.predicate = predicate;
         this.object = object;
     }
+
     @Override
+//    public boolean filter(TripleID t) {
+//        // Verificación de que el diccionario está presente
+//        if (dictionary != null) {
+//            System.out.println("Diccionario disponible en filter: " + dictionary);
+//        } else {
+//            System.out.println("El diccionario es nulo en filter");
+//            return false;
+//        }
+//
+//        Integer s = null, p = null, o = null;
+//
+//        // Casos donde sólo tenemos el predicado y el objeto
+//        if (subject == null && predicate != null && object != null) {
+//            p = TripleIDConvert.stringToIDPredicate(dictionary, predicate);
+//            o = TripleIDConvert.stringToIDObject(dictionary, object);
+//
+//            // Verificación del predicado y objeto
+//            if (p == null || p == -1) {
+//                System.out.println("Predicado no encontrado o inválido: " + predicate);
+//                return false;
+//            }
+//            if (o == null || o == -1) {
+//                System.out.println("Objeto no encontrado o inválido: " + object);
+//                return false;
+//            }
+//
+//            System.out.println(String.format("Predicado esperado: %s (ID: %d), Predicado en triple: %d", predicate, p, t.getPredicate()));
+//            System.out.println(String.format("Objeto esperado: %s (ID: %d), Objeto en triple: %d", object, o, t.getObject()));
+//
+//            if (t.getPredicate() != p || t.getObject() != o) {
+//                System.out.println("Predicado o objeto no coincide.");
+//                return false;
+//            }
+//            return true;
+//
+//            // Casos donde sólo tenemos el sujeto y el objeto
+//        } else if (subject != null && predicate == null && object != null) {
+//            s = TripleIDConvert.stringToIDSubject(dictionary, subject);
+//            o = TripleIDConvert.stringToIDObject(dictionary, object);
+//
+//            // Verificación del sujeto y objeto
+//            if (s == null || s == -1) {
+//                System.out.println("Sujeto no encontrado o inválido: " + subject);
+//                return false;
+//            }
+//            if (o == null || o == -1) {
+//                System.out.println("Objeto no encontrado o inválido: " + object);
+//                return false;
+//            }
+//
+//            System.out.println(String.format("Sujeto esperado: %s (ID: %d), Sujeto en triple: %d", subject, s, t.getSubject()));
+//            System.out.println(String.format("Objeto esperado: %s (ID: %d), Objeto en triple: %d", object, o, t.getObject()));
+//
+//            if (t.getSubject() != s || t.getObject() != o) {
+//                System.out.println("Sujeto o objeto no coincide.");
+//                return false;
+//            }
+//            return true;
+//
+//            // Casos donde sólo tenemos el sujeto y el predicado
+//        } else if (subject != null && predicate != null && object == null) {
+//            s = TripleIDConvert.stringToIDSubject(dictionary, subject);
+//            p = TripleIDConvert.stringToIDPredicate(dictionary, predicate);
+//
+//            // Verificación del sujeto y predicado
+//            if (s == null || s == -1) {
+//                System.out.println("Sujeto no encontrado o inválido: " + subject);
+//                return false;
+//            }
+//            if (p == null || p == -1) {
+//                System.out.println("Predicado no encontrado o inválido: " + predicate);
+//                return false;
+//            }
+//
+//            System.out.println(String.format("Sujeto esperado: %s (ID: %d), Sujeto en triple: %d", subject, s, t.getSubject()));
+//            System.out.println(String.format("Predicado esperado: %s (ID: %d), Predicado en triple: %d", predicate, p, t.getPredicate()));
+//
+//            if (t.getSubject() != s || t.getPredicate() != p) {
+//                System.out.println("Sujeto o predicado no coincide.");
+//                return false;
+//            }
+//            return true;
+//
+//            // Casos donde sólo tenemos el sujeto
+//        } else if (subject != null && predicate == null && object == null) {
+//            s = TripleIDConvert.stringToIDSubject(dictionary, subject);
+//
+//            // Verificación del sujeto
+//            if (s == null || s == -1) {
+//                System.out.println("Sujeto no encontrado o inválido: " + subject);
+//                return false;
+//            }
+//
+//            System.out.println(String.format("Sujeto esperado: %s (ID: %d), Sujeto en triple: %d", subject, s, t.getSubject()));
+//
+//            if (t.getSubject() != s) {
+//                System.out.println("Sujeto no coincide.");
+//                return false;
+//            }
+//            return true;
+//
+//            // Casos donde sólo tenemos el predicado
+//        } else if (subject == null && predicate != null && object == null) {
+//            p = TripleIDConvert.stringToIDPredicate(dictionary, predicate);
+//
+//            // Verificación del predicado
+//            if (p == null || p == -1) {
+//                System.out.println("Predicado no encontrado o inválido: " + predicate);
+//                return false;
+//            }
+//
+//            System.out.println(String.format("Predicado esperado: %s (ID: %d), Predicado en triple: %d", predicate, p, t.getPredicate()));
+//
+//            if (t.getPredicate() != p) {
+//                System.out.println("Predicado no coincide.");
+//                return false;
+//            }
+//            return true;
+//
+//            // Casos donde sólo tenemos el objeto
+//        } else if (subject == null && predicate == null && object != null) {
+//            o = TripleIDConvert.stringToIDObject(dictionary, object);
+//
+//            // Verificación del objeto
+//            if (o == null || o == -1) {
+//                System.out.println("Objeto no encontrado o inválido: " + object);
+//                return false;
+//            }
+//
+//            System.out.println(String.format("Objeto esperado: %s (ID: %d), Objeto en triple: %d", object, o, t.getObject()));
+//
+//            if (t.getObject() != o) {
+//                System.out.println("Objeto no coincide.");
+//                return false;
+//            }
+//            return true;
+//
+//            // Si no hay ningún criterio de filtro, se acepta cualquier triple
+//        } else {
+//            return true;
+//        }
+//    }
+
     public boolean filter(TripleID t) {
         Integer s = null, p = null, o = null;
 
@@ -56,7 +200,7 @@ public class Triple2Triple implements FilterFunction<TripleID> {
             }
             System.out.println(String.format("Predicado esperado: %s (ID: %d), Predicado en triple: %d", predicate, p, t.getPredicate()));
             if (p.intValue() != t.getPredicate()) {
-                System.out.println("Predicado no coincide.");
+                System.out.println(String.format("Predicado no coincide: esperado %d, encontrado %d", p.intValue(), t.getPredicate()));
                 return false;
             }
         } else if (predicate != null && predicate.startsWith("?")) {
@@ -79,10 +223,79 @@ public class Triple2Triple implements FilterFunction<TripleID> {
             System.out.println("El objeto es una variable: " + object);
         }
 
-        // Si todo coincide
         System.out.println("Triple coincide: " + t);
         return true;
     }
+
+
+
+    //El que mejor funciona
+//    public boolean filter(TripleID t) {
+//        Integer s = null, p = null, o = null;
+//
+//        // Mapear IDs a URIs
+//        String uriSubject = dictionary.idToString((int) t.getSubject(), TripleComponentRole.SUBJECT);
+//        String uriPredicate = dictionary.idToString((int) t.getPredicate(), TripleComponentRole.PREDICATE);
+//        String uriObject = dictionary.idToString((int) t.getObject(), TripleComponentRole.OBJECT);
+//
+//        System.out.println(String.format("Verificando triple: Subject=%d, Predicate=%d, Object=%d",
+//                t.getSubject(), t.getPredicate(), t.getObject()));
+//        System.out.println(String.format("Triple actual: Sujeto URI=%s, Predicado URI=%s, Objeto URI=%s",
+//                uriSubject, uriPredicate, uriObject));
+//
+//        // Comparación del sujeto
+//        if (subject != null && !subject.startsWith("?")) {
+//            s = TripleIDConvert.stringToIDSubject(dictionary, subject);
+//            if (s == null || s == -1) {
+//                System.out.println("Sujeto no encontrado o inválido: " + subject);
+//                return false;
+//            }
+//            System.out.println(String.format("Sujeto esperado: %s (ID: %d), Sujeto en triple: %d", subject, s, t.getSubject()));
+//            if (s.intValue() != t.getSubject()) {
+//                System.out.println("Sujeto no coincide.");
+//                return false;
+//            }
+//        } else if (subject != null && subject.startsWith("?")) {
+//            System.out.println("El sujeto es una variable: " + subject);
+//        }
+//
+//        // Comparación del predicado
+//        if (predicate != null && !predicate.startsWith("?")) {
+//            p = TripleIDConvert.stringToIDPredicate(dictionary, predicate);
+//            if (p == null || p == -1) {
+//                System.out.println("Predicado no encontrado o inválido: " + predicate);
+//                return false;
+//            }
+////            System.out.println(String.format("Predicado esperado: %s (ID: %d), Predicado en triple: %d", predicate, p, t.getPredicate()));
+//            if (p.intValue() != t.getPredicate()) {
+////                System.out.println("Predicado no coincide.");
+//                System.out.println(String.format("Predicado no coincide: esperado %d (URI: %s), encontrado %d (URI: %s)",
+//                        p.intValue(), predicate, t.getPredicate(), uriPredicate));
+//                return false;
+//            }
+//        } else if (predicate != null && predicate.startsWith("?")) {
+//            System.out.println("El predicado es una variable: " + predicate);
+//        }
+//
+//        // Comparación del objeto
+//        if (object != null && !object.startsWith("?")) {
+//            o = TripleIDConvert.stringToIDObject(dictionary, object);
+//            if (o == null || o == -1) {
+//                System.out.println("Objeto no encontrado o inválido: " + object);
+//                return false;
+//            }
+//            System.out.println(String.format("Objeto esperado: %s (ID: %d), Objeto en triple: %d", object, o, t.getObject()));
+//            if (o.intValue() != t.getObject()) {
+//                System.out.println("Objeto no coincide.");
+//                return false;
+//            }
+//        } else if (object != null && object.startsWith("?")) {
+//            System.out.println("El objeto es una variable: " + object);
+//        }
+//
+//          System.out.println("Triple coincide: " + t);
+//        return true;
+//    }
 
 //    public boolean filter(TripleID t) {
 //        Integer s = null, p = null, o = null;
