@@ -4,6 +4,7 @@ import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.ExecutionEnvironment;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.core.fs.FileSystem;
+import org.rdfhdt.hdt.enums.TripleComponentRole;
 import org.rdfhdt.hdt.hdt.HDT;
 import org.rdfhdt.hdt.triples.IteratorTripleID;
 import org.rdfhdt.hdt.triples.TripleID;
@@ -12,6 +13,7 @@ import sparql2flinkhdt.runner.LoadTriples;
 import sparql2flinkhdt.runner.functions.*;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 public class Query {
 	public static void main(String[] args) throws Exception {
@@ -37,6 +39,28 @@ public class Query {
 		// Creating SerializableDictionary
 		SerializableDictionary serializableDictionary = new SerializableDictionary();
 		serializableDictionary.loadFromHDTDictionary(hdt.getDictionary());
+
+		// Verificación del contenido del diccionario
+//		System.out.println("Verificando el contenido del diccionario:");
+
+		// Asumamos que sabemos que los IDs están en el rango de 1 a 10. Puedes ajustar este rango según tus necesidades.
+		for (int id = 1; id <= 10; id++) {
+			String subject = serializableDictionary.idToString(id, TripleComponentRole.SUBJECT);
+			String predicate = serializableDictionary.idToString(id, TripleComponentRole.PREDICATE);
+			String object = serializableDictionary.idToString(id, TripleComponentRole.OBJECT);
+
+			// Mostrar valores si son válidos
+			if (subject != null) {
+				System.out.println("Sujeto ID: " + id + " URI: " + subject);
+			}
+			if (predicate != null) {
+				System.out.println("Predicado ID: " + id + " URI: " + predicate);
+			}
+			if (object != null) {
+				System.out.println("Objeto ID: " + id + " URI: " + object);
+			}
+		}
+
 
 		DataSet<SolutionMappingHDT> sm1 = dataset
 				.filter(new Triple2Triple(serializableDictionary, null, "http://xmlns.com/foaf/0.1/name", null))

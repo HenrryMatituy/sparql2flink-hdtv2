@@ -20,10 +20,59 @@ public class SerializableDictionary implements Serializable {
     private static final Logger logger = Logger.getLogger(SerializableDictionary.class.getName());
 
     public void loadFromHDTDictionary(Dictionary dictionary) {
-        loadSection(dictionary, TripleComponentRole.SUBJECT);
-        loadSection(dictionary, TripleComponentRole.PREDICATE);
-        loadSection(dictionary, TripleComponentRole.OBJECT);
+        try {
+            System.out.println("Cargando SUBJECTs...");
+            long maxSubjects = dictionary.getNsubjects();  // Obtener el número de sujetos
+            for (int id = 1; id <= maxSubjects; id++) {
+                Object subjectObj = dictionary.idToString(id, TripleComponentRole.SUBJECT);  // Aquí puede ser un DelayedString
+                String subject = subjectObj != null ? subjectObj.toString() : null;  // Convertir a String explícitamente
+                if (subject != null) {
+                    System.out.println("Sujeto ID: " + id + " URI: " + subject);
+                    subjectMap.put(subject, id);
+                    reverseSubjectMap.put(id, subject);
+                } else {
+                    System.out.println("Error: Sujeto con ID " + id + " no encontrado.");
+                }
+            }
+
+            System.out.println("Cargando PREDICATEs...");
+            long maxPredicates = dictionary.getNpredicates();  // Obtener el número de predicados
+            for (int id = 1; id <= maxPredicates; id++) {
+                Object predicateObj = dictionary.idToString(id, TripleComponentRole.PREDICATE);  // Puede ser DelayedString
+                String predicate = predicateObj != null ? predicateObj.toString() : null;  // Convertir a String explícitamente
+                if (predicate != null) {
+                    System.out.println("Predicado ID: " + id + " URI: " + predicate);
+                    predicateMap.put(predicate, id);
+                    reversePredicateMap.put(id, predicate);
+                } else {
+                    System.out.println("Error: Predicado con ID " + id + " no encontrado.");
+                }
+            }
+
+            System.out.println("Cargando OBJECTs...");
+            long maxObjects = dictionary.getNobjects();  // Obtener el número de objetos
+            for (int id = 1; id <= maxObjects; id++) {
+                Object objectObj = dictionary.idToString(id, TripleComponentRole.OBJECT);  // Puede ser DelayedString
+                String object = objectObj != null ? objectObj.toString() : null;  // Convertir a String explícitamente
+                if (object != null) {
+                    System.out.println("Objeto ID: " + id + " URI: " + object);
+                    objectMap.put(object, id);
+                    reverseObjectMap.put(id, object);
+                } else {
+                    System.out.println("Error: Objeto con ID " + id + " no encontrado.");
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
+
+
+//    public void loadFromHDTDictionary(Dictionary dictionary) {
+//        loadSection(dictionary, TripleComponentRole.SUBJECT);
+//        loadSection(dictionary, TripleComponentRole.PREDICATE);
+//        loadSection(dictionary, TripleComponentRole.OBJECT);
+//    }
 
     private void loadSection(Dictionary dictionary, TripleComponentRole role) {
         int numEntries = 0;
@@ -159,6 +208,8 @@ public class SerializableDictionary implements Serializable {
     public String toString() {
         return "SerializableDictionary{...}";
     }
+
+
 
         }
 
