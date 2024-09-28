@@ -18,6 +18,17 @@ public class OrderKeySelector_Long implements KeySelector<SolutionMappingHDT, Lo
 
 	@Override
 	public Long getKey(SolutionMappingHDT sm) {
-		return Long.parseLong(TripleIDConvert.idToStringFilter(dictionary, sm.getMapping().get(key)).getLiteralValue().toString());
+		// Obtener el ID del mapping
+		Integer[] idAndRole = sm.getMapping().get(key); // Supongo que este es el formato que tienes en SolutionMappingHDT
+
+		// Verificar que el ID y rol existan
+		if (idAndRole == null || idAndRole.length != 2) {
+			throw new IllegalArgumentException("El formato de idAndRole no es válido para la clave: " + key);
+		}
+
+		// Usar idToStringFilter para convertir el ID y rol en un valor de cadena y luego obtener el valor largo
+		String literalValue = TripleIDConvert.idToStringFilter(dictionary, idAndRole).getLiteralValue().toString();
+
+		return Long.parseLong(literalValue);
 	}
 }

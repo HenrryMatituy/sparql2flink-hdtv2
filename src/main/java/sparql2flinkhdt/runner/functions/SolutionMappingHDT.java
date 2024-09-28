@@ -1,5 +1,6 @@
 package sparql2flinkhdt.runner.functions;
 
+import org.apache.jena.graph.Node;
 import org.apache.jena.sparql.engine.binding.Binding;
 import org.apache.jena.sparql.expr.Expr;
 import org.apache.jena.sparql.expr.ExprEvalException;
@@ -16,7 +17,6 @@ public class SolutionMappingHDT implements Serializable {
     private SerializableDictionary serializableDictionary;
     private static final Logger logger = Logger.getLogger(SolutionMappingHDT.class.getName());
     private HashMap<String, Integer[]> mapping = new HashMap<>();
-
 
     public SolutionMappingHDT() {}
 
@@ -37,13 +37,10 @@ public class SolutionMappingHDT implements Serializable {
     }
 
     public boolean existMapping(String var, Integer val) {
-        Boolean flag = false;
         if (mapping.containsKey(var)) {
-            if (mapping.get(var)[0] == val) {
-                flag = true;
-            }
+            return mapping.get(var)[0].equals(val);
         }
-        return flag;
+        return false;
     }
 
     public SolutionMappingHDT join(SolutionMappingHDT sm) {
@@ -66,10 +63,8 @@ public class SolutionMappingHDT implements Serializable {
             // Si existe un mapeo correspondiente en el derecho, usamos su valor
             if (right != null && right.getMapping().containsKey(var)) {
                 Integer[] rightValue = right.getMapping().get(var);
-                // Usar el valor del lado derecho si está presente
                 result.putMapping(var, rightValue != null ? rightValue : leftValue);
             } else {
-                // Si no existe en el derecho, usar el valor del izquierdo
                 result.putMapping(var, leftValue);
             }
         }
@@ -85,7 +80,6 @@ public class SolutionMappingHDT implements Serializable {
 
         return result;
     }
-
 
     @Override
     public String toString() {
@@ -103,7 +97,8 @@ public class SolutionMappingHDT implements Serializable {
             Expr expr = SSE.parseExpr(expression);  // Parseamos la expresión
             for (Map.Entry<String, Integer[]> entry : mapping.entrySet()) {
                 Integer[] value = entry.getValue();
-                NodeValue nodeValue = NodeValue.makeNode(TripleIDConvert.idToString(dictionary, value));
+                Node node = TripleIDConvert.idToString(dictionary, value);  // Ahora devuelve un Node
+                NodeValue nodeValue = NodeValue.makeNode(node);
 
                 // Evaluamos la expresión sobre los datos
                 NodeValue result = expr.eval((Binding) nodeValue, null);
@@ -117,6 +112,8 @@ public class SolutionMappingHDT implements Serializable {
             return false;
         }
     }
+
+
     public SolutionMappingHDT newSolutionMapping(String[] vars) {
         SolutionMappingHDT newMapping = new SolutionMappingHDT();
         for (String var : vars) {
@@ -126,6 +123,7 @@ public class SolutionMappingHDT implements Serializable {
         }
         return newMapping;
     }
+
     public SolutionMappingHDT project(String[] vars) {
         SolutionMappingHDT projectedMapping = new SolutionMappingHDT(this.serializableDictionary);
         for (String var : vars) {
@@ -135,5 +133,4 @@ public class SolutionMappingHDT implements Serializable {
         }
         return projectedMapping;
     }
-
 }

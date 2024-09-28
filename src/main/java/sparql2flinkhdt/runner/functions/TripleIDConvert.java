@@ -15,66 +15,26 @@ public class TripleIDConvert {
 
     public static Node idToString(SerializableDictionary dictionary, Integer[] id) {
         if (id == null || id.length != 2) {
-            logger.severe("idToString: Invalid ID array: " + id);
+            logger.severe("idToString: Invalid ID array: " + Arrays.toString(id));
             return null;
         }
 
+        // Convertir el ID en una URI o literal
         String uri = dictionary.idToString(id[0], getRole(id[1]));
         if (uri == null) {
             logger.severe("idToString: URI is null for id: " + id[0] + ", role: " + getRole(id[1]));
             return null;
         }
-        return NodeFactory.createURI(uri);
-    }
 
-    public static Integer stringToIDSubject(SerializableDictionary dictionary, String element) {
-        return dictionary.stringToID(element, TripleComponentRole.SUBJECT);
-    }
-
-    public static Integer stringToIDPredicate(SerializableDictionary dictionary, String element) {
-        return dictionary.stringToID(element, TripleComponentRole.PREDICATE);
-    }
-
-    public static Integer stringToIDObject(SerializableDictionary dictionary, String element) {
-        return dictionary.stringToID(element, TripleComponentRole.OBJECT);
-    }
-
-    private static TripleComponentRole getRole(int roleCode) {
-        switch (roleCode) {
-            case 1:
-                return TripleComponentRole.SUBJECT;
-            case 2:
-                return TripleComponentRole.PREDICATE;
-            case 3:
-                return TripleComponentRole.OBJECT;
-            default:
-                throw new IllegalArgumentException("Unknown role code: " + roleCode);
-        }
-    }
-
-    public static Node idToStringFilter(SerializableDictionary dictionary, Integer[] id) {
-        if (id == null || id.length != 2) {
-            logger.severe("idToStringFilter: Invalid ID array: " + Arrays.toString(id));
-            return null;
-        }
-
-        TripleComponentRole role = getRole(id[1]);
-        String uri = dictionary.idToString(id[0], role);
-
-        if (uri == null) {
-            logger.severe("idToStringFilter: URI is null for id: " + id[0] + ", role: " + role);
-            return null;
-        }
-
-        // Si es un literal con un tipo de dato, intentamos crear un nodo literal con el tipo XSD adecuado
-        if (role == TripleComponentRole.OBJECT && uri.contains("^^")) {
-            return createLiteralNode(uri);  // Creación de nodos literales con tipos de datos XSD
+        // Si el componente es un literal (objeto), devolver un nodo literal
+        if (getRole(id[1]) == TripleComponentRole.OBJECT && uri.startsWith("\"")) {
+            return createLiteralNode(uri);  // Crear un nodo literal
         } else {
-            // Si no es un literal, devolvemos el nodo URI normal
-            return NodeFactory.createURI(uri);
+            return NodeFactory.createURI(uri);  // Crear un nodo URI
         }
     }
 
+    // Método helper para convertir literales con tipos de datos
     private static Node createLiteralNode(String object) {
         int start = object.indexOf("\"") + 1;
         int end = object.indexOf("\"^^");
@@ -109,5 +69,17 @@ public class TripleIDConvert {
         }
     }
 
-
+    // Helper para obtener el rol (subject, predicate, object) según el código
+    private static TripleComponentRole getRole(int roleCode) {
+        switch (roleCode) {
+            case 1:
+                return TripleComponentRole.SUBJECT;
+            case 2:
+                return TripleComponentRole.PREDICATE;
+            case 3:
+                return TripleComponentRole.OBJECT;
+            default:
+                throw new IllegalArgumentException("Unknown role code: " + roleCode);
+        }
+    }
 }

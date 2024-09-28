@@ -43,22 +43,14 @@ public class Query {
 		// Verificación del contenido del diccionario
 //		System.out.println("Verificando el contenido del diccionario:");
 
-		// Asumamos que sabemos que los IDs están en el rango de 1 a 10. Puedes ajustar este rango según tus necesidades.
-		for (int id = 1; id <= 10; id++) {
-			String subject = serializableDictionary.idToString(id, TripleComponentRole.SUBJECT);
-			String predicate = serializableDictionary.idToString(id, TripleComponentRole.PREDICATE);
-			String object = serializableDictionary.idToString(id, TripleComponentRole.OBJECT);
+		for (TripleID t : listTripleID) {
+			// Convierte el ID del sujeto, predicado y objeto a sus respectivas URIs usando el rol adecuado
+			String subject = serializableDictionary.idToString((int) t.getSubject(), TripleComponentRole.SUBJECT);
+			String predicate = serializableDictionary.idToString((int) t.getPredicate(), TripleComponentRole.PREDICATE);
+			String object = serializableDictionary.idToString((int) t.getObject(), TripleComponentRole.OBJECT);
 
-			// Mostrar valores si son válidos
-			if (subject != null) {
-				System.out.println("Sujeto ID: " + id + " URI: " + subject);
-			}
-			if (predicate != null) {
-				System.out.println("Predicado ID: " + id + " URI: " + predicate);
-			}
-			if (object != null) {
-				System.out.println("Objeto ID: " + id + " URI: " + object);
-			}
+			// Imprime el triple resultante
+			System.out.println("Triple: " + subject + " " + predicate + " " + object);
 		}
 
 
