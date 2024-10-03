@@ -2,6 +2,7 @@ package sparql2flinkhdt.runner;
 
 import org.rdfhdt.hdt.dictionary.Dictionary;
 import org.rdfhdt.hdt.enums.TripleComponentRole;
+
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,7 +34,7 @@ public class SerializableDictionary implements Serializable {
         Map<String, Integer> map = null;
         Map<Integer, String> reverseMap = null;
 
-        // Asignar el mapa correspondiente según el rol
+        // Identificar el rol y asignar los mapas correspondientes
         switch (role) {
             case SUBJECT:
                 numEntries = Math.toIntExact(dictionary.getNsubjects());
@@ -53,15 +54,21 @@ public class SerializableDictionary implements Serializable {
                 reverseMap = reverseObjectMap;
                 logger.info("Cargando OBJECTs: " + numEntries);
                 break;
+            default:
+                throw new IllegalArgumentException("Unknown TripleComponentRole: " + role);
         }
 
-        // Procesar cada entrada y asignar a los mapas
+        // Procesar cada entrada de la sección
         for (int i = 1; i <= numEntries; i++) {
-            String uri = (String) dictionary.idToString(i, role);
+            Object result = dictionary.idToString(i, role);  // Obtener el valor del diccionario
+
+            // Convierte DelayedString a String usando toString()
+            String uri = (result != null) ? result.toString() : null;
+
             if (uri != null && !uri.isEmpty()) {
                 map.put(uri, i);
                 reverseMap.put(i, uri);
-                logger.info(String.format("ID=%d, Role=%s, URI=%s", i, role, uri));
+                logger.info(String.format("ID=%d, Role=%s, URI=%s", i, role, uri));  // Log de cada URI y su rol
             } else {
                 logger.warning(String.format("URI vacía o nula para el ID=%d, Role=%s", i, role));
             }
@@ -69,7 +76,7 @@ public class SerializableDictionary implements Serializable {
     }
 
     // Método para convertir una URI a su ID correspondiente según el rol (sujeto, predicado, objeto)
-    public int stringToID(String value, TripleComponentRole role) {
+    public Integer stringToID(String value, TripleComponentRole role) {
         Integer id = null;
         switch (role) {
             case SUBJECT:
@@ -85,7 +92,7 @@ public class SerializableDictionary implements Serializable {
 
         if (id == null) {
             logger.severe("stringToID: No ID found for value: " + value + ", role: " + role);
-            return -1;
+            return -1;  // Para manejar el caso donde el ID no existe
         }
         return id;
     }
@@ -99,6 +106,7 @@ public class SerializableDictionary implements Serializable {
                 break;
             case PREDICATE:
                 value = reversePredicateMap.get(id);
+                System.out.println("Asignando ID para predicado URI: " + value + " -> ID: " + id);
                 break;
             case OBJECT:
                 value = reverseObjectMap.get(id);
@@ -115,6 +123,6 @@ public class SerializableDictionary implements Serializable {
 
     @Override
     public String toString() {
-        return "SerializableDictionary{...}";
+        return "SerializableDictionary{...}";  // No se imprime todo el contenido para evitar grandes volúmenes de datos en el log
     }
 }

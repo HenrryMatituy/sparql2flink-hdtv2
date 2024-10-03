@@ -37,10 +37,7 @@ public class SolutionMappingHDT implements Serializable {
     }
 
     public boolean existMapping(String var, Integer val) {
-        if (mapping.containsKey(var)) {
-            return mapping.get(var)[0].equals(val);
-        }
-        return false;
+        return mapping.containsKey(var) && mapping.get(var)[0].equals(val);
     }
 
     public SolutionMappingHDT join(SolutionMappingHDT sm) {
@@ -92,18 +89,19 @@ public class SolutionMappingHDT implements Serializable {
         return sm.toString();
     }
 
+    // Método para aplicar un filtro basado en una expresión SPARQL
     public boolean filter(SerializableDictionary dictionary, String expression) {
         try {
             Expr expr = SSE.parseExpr(expression);  // Parseamos la expresión
             for (Map.Entry<String, Integer[]> entry : mapping.entrySet()) {
                 Integer[] value = entry.getValue();
-                Node node = TripleIDConvert.idToString(dictionary, value);  // Ahora devuelve un Node
+                Node node = TripleIDConvert.idToString(dictionary, value);  // Convertimos a Node
                 NodeValue nodeValue = NodeValue.makeNode(node);
 
                 // Evaluamos la expresión sobre los datos
                 NodeValue result = expr.eval((Binding) nodeValue, null);
                 if (!result.getBoolean()) {
-                    return false;  // Si alguno de los resultados no pasa el filtro, se retorna false
+                    return false;  // Si algún resultado no pasa el filtro, retornamos false
                 }
             }
             return true;  // Si todos pasan el filtro, retornamos true
@@ -113,7 +111,7 @@ public class SolutionMappingHDT implements Serializable {
         }
     }
 
-
+    // Crear una nueva instancia de SolutionMapping solo con las variables especificadas
     public SolutionMappingHDT newSolutionMapping(String[] vars) {
         SolutionMappingHDT newMapping = new SolutionMappingHDT();
         for (String var : vars) {
@@ -124,6 +122,7 @@ public class SolutionMappingHDT implements Serializable {
         return newMapping;
     }
 
+    // Proyectar solo las variables especificadas en una nueva instancia de SolutionMapping
     public SolutionMappingHDT project(String[] vars) {
         SolutionMappingHDT projectedMapping = new SolutionMappingHDT(this.serializableDictionary);
         for (String var : vars) {
