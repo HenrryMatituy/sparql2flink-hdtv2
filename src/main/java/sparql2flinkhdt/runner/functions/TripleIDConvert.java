@@ -15,13 +15,13 @@ public class TripleIDConvert {
     // Método para convertir un ID en un Node de Jena (URI o literal)
     public static Node idToString(SerializableDictionary dictionary, Integer[] id) {
         if (id == null || id.length != 2) {
-            logger.severe("idToString: Invalid ID array: " + id);
+            logger.severe("idToString: Invalid ID array (TRIPLEIDCONVERT): " + id);
             return null;
         }
 
         String uri = dictionary.idToString(id[0], getRole(id[1]));
         if (uri == null) {
-            logger.severe("idToString: URI is null for id: " + id[0] + ", role: " + getRole(id[1]));
+            logger.severe("idToString: URI is null for id (TRIPLEIDCONVERT): " + id[0] + ", role: " + getRole(id[1]));
             return null;
         }
 
@@ -38,7 +38,7 @@ public class TripleIDConvert {
     public static Integer stringToID(SerializableDictionary dictionary, String element, TripleComponentRole role) {
         Integer id = dictionary.stringToID(element, role);
         if (id == null || id == -1) {
-            logger.severe("stringToID: No ID found for element: " + element + " with role: " + role);
+            logger.severe("stringToID: No ID found for element (TRIPLEIDCONVERT): " + element + " with role: " + role);
             return null;
         }
         return id;
@@ -54,7 +54,7 @@ public class TripleIDConvert {
         int start = object.indexOf("\"") + 1;
         int end = object.lastIndexOf("\"");
         if (start < 0 || end < 0 || start >= end) {
-            logger.severe("createLiteralNode: Invalid literal format: " + object);
+            logger.severe("createLiteralNode: Invalid literal format (TRIPLEIDCONVERT): " + object);
             return null;
         }
 
@@ -83,7 +83,7 @@ public class TripleIDConvert {
                 return XSDDatatype.XSDstring;
             // Otros tipos de XSD pueden agregarse aquí
             default:
-                logger.warning("getXSDDatatype: Unknown datatype URI: " + datatypeURI);
+                logger.warning("getXSDDatatype: Unknown datatype URI (TRIPLEIDCONVERT): " + datatypeURI);
                 return XSDDatatype.XSDstring;  // Valor por defecto
         }
     }
@@ -91,7 +91,7 @@ public class TripleIDConvert {
     // Método para obtener el rol a partir del código
     private static TripleComponentRole getRole(Integer roleCode) {
         if (roleCode == null) {
-            logger.severe("getRole: Null role code");
+            logger.severe("getRole: Null role code (TRIPLEIDCONVERT)");
             return null;
         }
 
@@ -103,21 +103,21 @@ public class TripleIDConvert {
             case 3:
                 return TripleComponentRole.OBJECT;
             default:
-                throw new IllegalArgumentException("Unknown role code: " + roleCode);
+                throw new IllegalArgumentException("Unknown role code (TRIPLEIDCONVERT): " + roleCode);
         }
     }
 
     // Método idToStringFilter para convertir IDs a Node con manejo de literales
     public static Node idToStringFilter(SerializableDictionary dictionary, Integer[] id) {
         if (id == null || id.length != 2) {
-            logger.severe("idToStringFilter: Invalid ID array: " + id);
+            logger.severe("idToStringFilter: Invalid ID array (TRIPLEIDCONVERT): " + id);
             return null;
         }
 
         String uri = dictionary.idToString(id[0], getRole(id[1]));
 
         if (uri == null) {
-            logger.severe("idToStringFilter: URI is null for id: " + id[0] + ", role: " + getRole(id[1]));
+            logger.severe("idToStringFilter: URI is null for id (TRIPLEIDCONVERT): " + id[0] + ", role: " + getRole(id[1]));
             return null;
         }
 

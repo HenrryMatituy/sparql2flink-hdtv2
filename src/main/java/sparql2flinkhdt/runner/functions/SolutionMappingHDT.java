@@ -24,6 +24,16 @@ public class SolutionMappingHDT implements Serializable {
         this.serializableDictionary = serializableDictionary;
     }
 
+    // Getter para serializableDictionary
+    public SerializableDictionary getSerializableDictionary() {
+        return serializableDictionary;
+    }
+
+    // Setter para serializableDictionary
+    public void setSerializableDictionary(SerializableDictionary serializableDictionary) {
+        this.serializableDictionary = serializableDictionary;
+    }
+
     public void setMapping(HashMap<String, Integer[]> mapping) {
         this.mapping = mapping;
     }
