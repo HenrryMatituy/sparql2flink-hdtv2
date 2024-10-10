@@ -91,9 +91,13 @@ public class SerializableDictionary implements Serializable {
                 id = subjectMap.get(value);
                 break;
             case PREDICATE:
-                System.out.println("Asignando ID para predicado URI (SERIALIZABLEDICTIONARY): " + value + " -> ID: " + id);
-
                 id = predicateMap.get(value);
+                System.out.println("Verificando predicado en el mapa (SERIALIZABLEDICTIONARY STRINGTOID): " + value);
+                if (!predicateMap.containsKey(value)) {
+                    System.out.println("Error: El predicado no se encuentra en el mapa (SERIALIZABLEDICTIONARY STRINGTOID): " + value);
+                } else {
+                    System.out.println("Predicado encontrado en el mapa (SERIALIZABLEDICTIONARY STRINGTOID): " + value + " -> ID: " + id);
+                }
                 break;
             case OBJECT:
                 id = objectMap.get(value);
@@ -101,12 +105,12 @@ public class SerializableDictionary implements Serializable {
         }
 
         if (id == null) {
-//            logger.severe("stringToID: No ID found for value: " + value + ", role: " + role);
-            System.out.println("stringToID: No ID found for value: " + value + ", role: " + role);
+            System.out.println("Error: No se encontró el ID para value: " + value + ", role: " + role + " (SERIALIZABLEDICTIONARY STRINGTOID)");
             return -1;  // Para manejar el caso donde el ID no existe
         }
         return id;
     }
+
 
     // Metodo para convertir un ID a su URI correspondiente según el rol (sujeto, predicado, objeto)
     public String idToString(int id, TripleComponentRole role) {
