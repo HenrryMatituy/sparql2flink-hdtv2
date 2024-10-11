@@ -8,7 +8,9 @@ import sparql2flinkhdt.runner.SerializableDictionary;
 public class Triple2Triple implements FilterFunction<TripleID> {
 
     private SerializableDictionary dictionary;
-    private String subject, predicate, object;
+    private String subject;
+    private String predicate;
+    private String object;
 
     public Triple2Triple(SerializableDictionary dictionary, String subject, String predicate, String object) {
         this.dictionary = dictionary;
@@ -19,10 +21,10 @@ public class Triple2Triple implements FilterFunction<TripleID> {
 
     @Override
     public boolean filter(TripleID t) {
-        System.out.println("Entrando al método filter de Triple2Triple (TRIPLE2TRIPLE)");
+        System.out.println("Entrando al método filter de Triple2Triple");
 
         // Variables para los IDs de sujeto, predicado y objeto
-        Integer s = null, p = null, o = null;
+        Long s = null, p = null, o = null;
 
         // Obtener los IDs actuales del triple
         long tSubject = t.getSubject();
@@ -40,52 +42,53 @@ public class Triple2Triple implements FilterFunction<TripleID> {
 
         // Procesamiento del sujeto
         if (subject == null) {
-            s = (int) tSubject;
+            s = tSubject;
         } else {
-            s = TripleIDConvert.stringToID(dictionary, subject, TripleComponentRole.SUBJECT);
-            if (s == -1) {
+            Integer subjectId = TripleIDConvert.stringToID(dictionary, subject, TripleComponentRole.SUBJECT);
+            if (subjectId == -1) {
                 System.out.println("Error: Sujeto no encontrado en el diccionario para el URI: " + subject);
                 return false;
             }
+            s = subjectId.longValue();
         }
 
         // Procesamiento del predicado
         if (predicate == null) {
-            p = (int) tPredicate;
+            p = tPredicate;
         } else {
-            p = TripleIDConvert.stringToID(dictionary, predicate, TripleComponentRole.PREDICATE);
-            if (p == -1) {
+            Integer predicateId = TripleIDConvert.stringToID(dictionary, predicate, TripleComponentRole.PREDICATE);
+            if (predicateId == -1) {
                 System.out.println("Error: Predicado no encontrado en el diccionario para el URI: " + predicate);
                 return false;
             }
+            p = predicateId.longValue();
         }
 
         // Procesamiento del objeto
         if (object == null) {
-            o = (int) tObject;
+            o = tObject;
         } else {
-            o = TripleIDConvert.stringToID(dictionary, object, TripleComponentRole.OBJECT);
-            if (o == -1) {
+            Integer objectId = TripleIDConvert.stringToID(dictionary, object, TripleComponentRole.OBJECT);
+            if (objectId == -1) {
                 System.out.println("Error: Objeto no encontrado en el diccionario para el URI: " + object);
                 return false;
             }
+            o = objectId.longValue();
         }
 
         // Realizar las comparaciones
-        boolean subjectMatches = (subject == null) || (tSubject == s.longValue());
-        boolean predicateMatches = (predicate == null) || (tPredicate == p.longValue());
-        boolean objectMatches = (object == null) || (tObject == o.longValue());
+        boolean subjectMatches = (subject == null) || (tSubject == s);
+        boolean predicateMatches = (predicate == null) || (tPredicate == p);
+        boolean objectMatches = (object == null) || (tObject == o);
 
         // Depuración detallada
-        System.out.println(String.format("Verificando triple: Sujeto=%d, Predicado=%d, Objeto=%d", tSubject, tPredicate, tObject));
-        System.out.println(String.format("Comparando sujeto esperado=%s con sujeto encontrado=%d", s, tSubject));
-        System.out.println(String.format("Comparando predicado esperado=%s con predicado encontrado=%d", p, tPredicate));
-        System.out.println(String.format("Comparando objeto esperado=%s con objeto encontrado=%d", o, tObject));
+        System.out.println(String.format("Verificando triple: Sujeto ID=%d, Predicado ID=%d, Objeto ID=%d", tSubject, tPredicate, tObject));
+        System.out.println(String.format("Sujeto esperado ID=%s, Sujeto encontrado ID=%d", s, tSubject));
+        System.out.println(String.format("Predicado esperado ID=%s, Predicado encontrado ID=%d", p, tPredicate));
+        System.out.println(String.format("Objeto esperado ID=%s, Objeto encontrado ID=%d", o, tObject));
+        System.out.println("Resultado de la comparación: Sujeto=" + subjectMatches + ", Predicado=" + predicateMatches + ", Objeto=" + objectMatches);
 
         // Resultado final del filtro
         return subjectMatches && predicateMatches && objectMatches;
     }
-
-
-
 }

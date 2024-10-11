@@ -57,6 +57,10 @@ public class Query {
 			// Imprimir el triple resultante
 			System.out.println("Triple: " + subject + " " + predicate + " " + object);
 		}
+		System.out.println("Mapeo de los PREDICADOS");
+		serializableDictionary.printPredicateMappings();
+
+
 
 		// Crear el primer conjunto de mapeo de soluciones (sm1) para personas y nombres
 		DataSet<SolutionMappingHDT> sm1 = dataset

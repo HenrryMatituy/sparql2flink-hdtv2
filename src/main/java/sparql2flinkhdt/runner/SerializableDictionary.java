@@ -143,4 +143,12 @@ public class SerializableDictionary implements Serializable {
     public String toString() {
         return "SerializableDictionary{...}";  // No se imprime todo el contenido para evitar grandes volúmenes de datos en el log
     }
+    public void printPredicateMappings() {
+        System.out.println("IDs de predicados en el diccionario:");
+        for (Map.Entry<String, Integer> entry : this.predicateMap.entrySet()) {
+            System.out.println("URI: " + entry.getKey() + " -> ID: " + entry.getValue());
+        }
+    }
+
+
 }
