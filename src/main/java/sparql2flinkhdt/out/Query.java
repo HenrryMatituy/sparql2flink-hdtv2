@@ -67,27 +67,27 @@ public class Query {
 				.filter(new Triple2Triple(serializableDictionary, null, "http://xmlns.com/foaf/0.1/name", null))
 				.map(new Triple2SolutionMapping("?person", null, "?name", serializableDictionary));
 
-		// Crear el segundo conjunto de mapeo de soluciones (sm2) para personas y correos electrónicos
-		DataSet<SolutionMappingHDT> sm2 = dataset
-				.filter(new Triple2Triple(serializableDictionary, null, "http://xmlns.com/foaf/0.1/mbox", null))
-				.map(new Triple2SolutionMapping("?person", null, "?mbox", serializableDictionary));
-
-		// Realizar un Left Outer Join entre sm1 y sm2
-		DataSet<SolutionMappingHDT> sm3 = sm1.leftOuterJoin(sm2)
-				.where(new JoinKeySelector(new String[]{"?person"}))
-				.equalTo(new JoinKeySelector(new String[]{"?person"}))
-				.with(new LeftJoin());
-
-		// Proyectar las variables ?person, ?name, y ?mbox
-		DataSet<SolutionMappingHDT> sm4 = sm3
-				.map(new Project(new String[]{"?person", "?name", "?mbox"}));
-
-		// Convertir los IDs a URIs usando el diccionario
-		DataSet<SolutionMappingURI> sm5 = sm4
-				.map(new TripleID2TripleString(serializableDictionary));
+//		// Crear el segundo conjunto de mapeo de soluciones (sm2) para personas y correos electrónicos
+//		DataSet<SolutionMappingHDT> sm2 = dataset
+//				.filter(new Triple2Triple(serializableDictionary, null, "http://xmlns.com/foaf/0.1/mbox", null))
+//				.map(new Triple2SolutionMapping("?person", null, "?mbox", serializableDictionary));
+//
+//		// Realizar un Left Outer Join entre sm1 y sm2
+//		DataSet<SolutionMappingHDT> sm3 = sm1.leftOuterJoin(sm2)
+//				.where(new JoinKeySelector(new String[]{"?person"}))
+//				.equalTo(new JoinKeySelector(new String[]{"?person"}))
+//				.with(new LeftJoin());
+//
+//		// Proyectar las variables ?person, ?name, y ?mbox
+//		DataSet<SolutionMappingHDT> sm4 = sm3
+//				.map(new Project(new String[]{"?person", "?name", "?mbox"}));
+//
+//		// Convertir los IDs a URIs usando el diccionario
+//		DataSet<SolutionMappingURI> sm5 = sm4
+//				.map(new TripleID2TripleString(serializableDictionary));
 
 		// Escribir el resultado a un archivo de texto
-		sm5.writeAsText(params.get("output") + "Query-Flink-Result", FileSystem.WriteMode.OVERWRITE)
+		sm1.writeAsText(params.get("output") + "Query-Flink-Result", FileSystem.WriteMode.OVERWRITE)
 				.setParallelism(1);
 
 		// Ejecutar el job de Flink

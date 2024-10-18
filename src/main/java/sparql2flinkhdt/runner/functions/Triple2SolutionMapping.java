@@ -19,26 +19,40 @@ public class Triple2SolutionMapping implements MapFunction<TripleID, SolutionMap
     @Override
     public SolutionMappingHDT map(TripleID t) {
         SolutionMappingHDT sm = new SolutionMappingHDT(serializableDictionary);
-        if(var_s != null && var_p == null && var_o == null) {
-            sm.putMapping(var_s, new Integer[]{Math.toIntExact(t.getSubject()), 1});
-        } else if(var_s != null && var_p != null && var_o == null) {
-            sm.putMapping(var_s, new Integer[]{Math.toIntExact(t.getSubject()), 1});
-            sm.putMapping(var_p, new Integer[]{Math.toIntExact(t.getPredicate()), 2});
-        } else if(var_s != null && var_p == null && var_o != null) {
-            sm.putMapping(var_s, new Integer[]{Math.toIntExact(t.getSubject()), 1});
-            sm.putMapping(var_o, new Integer[]{Math.toIntExact(t.getObject()), 3});
-        } else if(var_s == null && var_p != null && var_o == null) {
-            sm.putMapping(var_p, new Integer[]{Math.toIntExact(t.getPredicate()), 2});
-        } else if(var_s == null && var_p != null && var_o != null) {
-            sm.putMapping(var_p, new Integer[]{Math.toIntExact(t.getPredicate()), 2});
-            sm.putMapping(var_o, new Integer[]{Math.toIntExact(t.getObject()), 3});
-        } else if(var_s == null && var_p == null && var_o != null) {
-            sm.putMapping(var_o, new Integer[]{Math.toIntExact(t.getObject()), 3});
-        } else {
-            sm.putMapping(var_s, new Integer[]{Math.toIntExact(t.getSubject()), 1});
-            sm.putMapping(var_p, new Integer[]{Math.toIntExact(t.getPredicate()), 2});
-            sm.putMapping(var_o, new Integer[]{Math.toIntExact(t.getObject()), 3});
+        try {
+            if(var_s != null && var_p == null && var_o == null) {
+                sm.putMapping(var_s, new Long[]{t.getSubject(), 1L});
+            } else if(var_s != null && var_p != null && var_o == null) {
+                sm.putMapping(var_s, new Long[]{t.getSubject(), 1L});
+                sm.putMapping(var_p, new Long[]{t.getPredicate(), 2L});
+            } else if(var_s != null && var_p == null && var_o != null) {
+                sm.putMapping(var_s, new Long[]{t.getSubject(), 1L});
+                sm.putMapping(var_o, new Long[]{t.getObject(), 3L});
+            } else if(var_s == null && var_p != null && var_o == null) {
+                sm.putMapping(var_p, new Long[]{t.getPredicate(), 2L});
+            } else if(var_s == null && var_p != null && var_o != null) {
+                sm.putMapping(var_p, new Long[]{t.getPredicate(), 2L});
+                sm.putMapping(var_o, new Long[]{t.getObject(), 3L});
+            } else if(var_s == null && var_p == null && var_o != null) {
+                sm.putMapping(var_o, new Long[]{t.getObject(), 3L});
+            } else {
+                if (var_s != null) {
+                    sm.putMapping(var_s, new Long[]{t.getSubject(), 1L});
+                }
+                if (var_p != null) {
+                    sm.putMapping(var_p, new Long[]{t.getPredicate(), 2L});
+                }
+                if (var_o != null) {
+                    sm.putMapping(var_o, new Long[]{t.getObject(), 3L});
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Excepción en el método map: " + e.getMessage());
+            e.printStackTrace();
+            throw e; // Re-lanzar la excepción para que Flink la maneje adecuadamente
         }
         return sm;
     }
+
+
 }

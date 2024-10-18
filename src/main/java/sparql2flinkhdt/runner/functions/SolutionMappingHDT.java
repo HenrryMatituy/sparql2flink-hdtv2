@@ -1,22 +1,47 @@
 package sparql2flinkhdt.runner.functions;
 
 import org.apache.jena.graph.Node;
+import org.apache.jena.graph.NodeFactory;
+import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.engine.binding.Binding;
-import org.apache.jena.sparql.expr.Expr;
-import org.apache.jena.sparql.expr.ExprEvalException;
-import org.apache.jena.sparql.expr.NodeValue;
+import org.apache.jena.sparql.engine.binding.BindingFactory;
+import org.apache.jena.sparql.expr.*;
+import org.apache.jena.sparql.function.FunctionEnvBase;
 import org.apache.jena.sparql.sse.SSE;
 import sparql2flinkhdt.runner.SerializableDictionary;
-
+import tu.paquete.TripleComponentRole;  // Asegúrate de importar la clase correcta
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
 public class SolutionMappingHDT implements Serializable {
+
+    private static final long serialVersionUID = 1L;
     private SerializableDictionary serializableDictionary;
     private static final Logger logger = Logger.getLogger(SolutionMappingHDT.class.getName());
-    private HashMap<String, Integer[]> mapping = new HashMap<>();
+
+    // Clase interna para representar los valores de mapeo
+    public static class MappingValue implements Serializable {
+        private static final long serialVersionUID = 1L;
+        private Long id;
+        private int role;
+
+        public MappingValue(Long id, int role) {
+            this.id = id;
+            this.role = role;
+        }
+
+        public Long getId() {
+            return id;
+        }
+
+        public int getRole() {
+            return role;
+        }
+    }
+
+    private HashMap<String, MappingValue> mapping = new HashMap<>();
 
     public SolutionMappingHDT() {}
 
@@ -24,63 +49,68 @@ public class SolutionMappingHDT implements Serializable {
         this.serializableDictionary = serializableDictionary;
     }
 
-    // Getter para serializableDictionary
+    // Getter y Setter para serializableDictionary
     public SerializableDictionary getSerializableDictionary() {
         return serializableDictionary;
     }
 
-    // Setter para serializableDictionary
     public void setSerializableDictionary(SerializableDictionary serializableDictionary) {
         this.serializableDictionary = serializableDictionary;
     }
 
-    public void setMapping(HashMap<String, Integer[]> mapping) {
+    public void setMapping(HashMap<String, MappingValue> mapping) {
         this.mapping = mapping;
     }
 
-    public HashMap<String, Integer[]> getMapping() {
+    public HashMap<String, MappingValue> getMapping() {
         return mapping;
     }
 
-    public void putMapping(String var, Integer[] val) {
-        mapping.put(var, val);
+    public void putMapping(String var, MappingValue val) {
+        if (var != null && val != null) {
+            mapping.put(var, val);
+        } else {
+            logger.warning("Intento de agregar un mapeo con variable o valor nulo.");
+        }
     }
 
-    public boolean existMapping(String var, Integer val) {
-        return mapping.containsKey(var) && mapping.get(var)[0].equals(val);
+    public boolean existMapping(String var, Long val) {
+        return mapping.containsKey(var) && mapping.get(var).getId().equals(val);
     }
 
     public SolutionMappingHDT join(SolutionMappingHDT sm) {
-        for (Map.Entry<String, Integer[]> hm : sm.getMapping().entrySet()) {
-            if (!existMapping(hm.getKey(), hm.getValue()[0])) {
-                this.putMapping(hm.getKey(), hm.getValue());
+        SolutionMappingHDT result = new SolutionMappingHDT(this.serializableDictionary);
+        result.mapping.putAll(this.mapping);
+
+        for (Map.Entry<String, MappingValue> entry : sm.getMapping().entrySet()) {
+            String key = entry.getKey();
+            MappingValue value = entry.getValue();
+
+            if (!result.mapping.containsKey(key)) {
+                result.mapping.put(key, value);
+            } else {
+                // Manejar conflictos si es necesario
+                MappingValue existingValue = result.mapping.get(key);
+                if (!existingValue.getId().equals(value.getId())) {
+                    logger.warning("Conflicto al unir mappings: variable " + key + " tiene valores diferentes.");
+                    // Decidir cómo manejar el conflicto: sobrescribir, ignorar, etc.
+                }
             }
         }
-        return this;
+        return result;
     }
 
     public SolutionMappingHDT leftJoin(SolutionMappingHDT right) {
-        SolutionMappingHDT result = new SolutionMappingHDT();
+        SolutionMappingHDT result = new SolutionMappingHDT(this.serializableDictionary);
+        result.mapping.putAll(this.mapping);
 
-        // Recorremos todas las entradas del mapping actual (izquierdo)
-        for (Map.Entry<String, Integer[]> leftEntry : this.mapping.entrySet()) {
-            String var = leftEntry.getKey();
-            Integer[] leftValue = leftEntry.getValue();
-
-            // Si existe un mapeo correspondiente en el derecho, usamos su valor
-            if (right != null && right.getMapping().containsKey(var)) {
-                Integer[] rightValue = right.getMapping().get(var);
-                result.putMapping(var, rightValue != null ? rightValue : leftValue);
-            } else {
-                result.putMapping(var, leftValue);
-            }
-        }
-
-        // Añadir cualquier clave del lado derecho que no esté en el izquierdo
         if (right != null) {
-            for (Map.Entry<String, Integer[]> rightEntry : right.getMapping().entrySet()) {
-                if (!result.getMapping().containsKey(rightEntry.getKey())) {
-                    result.putMapping(rightEntry.getKey(), rightEntry.getValue());
+            for (Map.Entry<String, MappingValue> rightEntry : right.getMapping().entrySet()) {
+                String var = rightEntry.getKey();
+                MappingValue rightValue = rightEntry.getValue();
+
+                if (!result.mapping.containsKey(var)) {
+                    result.mapping.put(var, rightValue);
                 }
             }
         }
@@ -91,39 +121,58 @@ public class SolutionMappingHDT implements Serializable {
     @Override
     public String toString() {
         StringBuilder sm = new StringBuilder();
-        for (Map.Entry<String, Integer[]> hm : mapping.entrySet()) {
-            if (hm.getValue() != null) {
-                sm.append(hm.getKey()).append("-->").append(hm.getValue()[0]).append("\t");
+        for (Map.Entry<String, MappingValue> entry : mapping.entrySet()) {
+            if (entry.getValue() != null) {
+                sm.append(entry.getKey()).append("-->").append(entry.getValue().getId()).append("\t");
             }
         }
         return sm.toString();
     }
 
     // Método para aplicar un filtro basado en una expresión SPARQL
-    public boolean filter(SerializableDictionary dictionary, String expression) {
+    public boolean filter(String expression) {
         try {
             Expr expr = SSE.parseExpr(expression);  // Parseamos la expresión
-            for (Map.Entry<String, Integer[]> entry : mapping.entrySet()) {
-                Integer[] value = entry.getValue();
-                Node node = TripleIDConvert.idToString(dictionary, value);  // Convertimos a Node
-                NodeValue nodeValue = NodeValue.makeNode(node);
 
-                // Evaluamos la expresión sobre los datos
-                NodeValue result = expr.eval((Binding) nodeValue, null);
-                if (!result.getBoolean()) {
-                    return false;  // Si algún resultado no pasa el filtro, retornamos false
+            // Creamos un Binding con las variables y sus valores
+            Binding binding = BindingFactory.binding();
+            for (Map.Entry<String, MappingValue> entry : mapping.entrySet()) {
+                String varName = entry.getKey().startsWith("?") ? entry.getKey().substring(1) : entry.getKey();
+                MappingValue value = entry.getValue();
+
+                String uriOrLiteral = TripleIDConvert.idToString(serializableDictionary, value.getId().intValue(), TripleComponentRole.fromInt(value.getRole()));
+                Node node;
+                if (TripleComponentRole.fromInt(value.getRole()) == TripleComponentRole.OBJECT) {
+                    // Determinar si es un literal o URI
+                    if (uriOrLiteral.startsWith("\"")) {
+                        node = SSE.parseNode(uriOrLiteral);
+                    } else {
+                        node = NodeFactory.createURI(uriOrLiteral);
+                    }
+                } else {
+                    node = NodeFactory.createURI(uriOrLiteral);
                 }
+
+                binding = BindingFactory.binding(binding, Var.alloc(varName), node);
             }
-            return true;  // Si todos pasan el filtro, retornamos true
+
+            // Evaluamos la expresión con el binding
+            NodeValue result = expr.eval(binding, FunctionEnvBase.createTest());
+            return result.getBoolean();
         } catch (ExprEvalException e) {
             logger.severe("Error al evaluar la expresión: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        } catch (Exception e) {
+            logger.severe("Error inesperado al evaluar el filtro: " + e.getMessage());
+            e.printStackTrace();
             return false;
         }
     }
 
-    // Crear una nueva instancia de SolutionMapping solo con las variables especificadas
+    // Crear una nueva instancia de SolutionMappingHDT solo con las variables especificadas
     public SolutionMappingHDT newSolutionMapping(String[] vars) {
-        SolutionMappingHDT newMapping = new SolutionMappingHDT();
+        SolutionMappingHDT newMapping = new SolutionMappingHDT(this.serializableDictionary);
         for (String var : vars) {
             if (this.mapping.containsKey(var)) {
                 newMapping.putMapping(var, this.mapping.get(var));  // Copiar la variable y su valor
@@ -132,14 +181,8 @@ public class SolutionMappingHDT implements Serializable {
         return newMapping;
     }
 
-    // Proyectar solo las variables especificadas en una nueva instancia de SolutionMapping
+    // Proyectar solo las variables especificadas en una nueva instancia de SolutionMappingHDT
     public SolutionMappingHDT project(String[] vars) {
-        SolutionMappingHDT projectedMapping = new SolutionMappingHDT(this.serializableDictionary);
-        for (String var : vars) {
-            if (this.mapping.containsKey(var)) {
-                projectedMapping.putMapping(var, this.mapping.get(var));
-            }
-        }
-        return projectedMapping;
+        return newSolutionMapping(vars);
     }
 }
