@@ -1,6 +1,7 @@
 package sparql2flinkhdt.runner.functions;
 
-import org.apache.jena.datatypes.xsd.XSDDatatype;
+import org.apache.jena.datatypes.RDFDatatype;
+import org.apache.jena.datatypes.TypeMapper;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
 import sparql2flinkhdt.runner.SerializableDictionary;
@@ -12,48 +13,46 @@ public class TripleIDConvert {
 
     private static final Logger logger = Logger.getLogger(TripleIDConvert.class.getName());
 
-    // Método para convertir un ID en un Node de Jena (URI o literal)
-    public static Node idToString(SerializableDictionary dictionary, Integer[] id) {
-        if (id == null || id.length != 2) {
-            logger.severe("idToString: Invalid ID array (TRIPLEIDCONVERT): " + id);
+    // Método para convertir un MappingValue en un Node de Jena (URI o literal)
+    public static Node idToString(SerializableDictionary dictionary, SolutionMappingHDT.MappingValue mappingValue) {
+        if (mappingValue == null) {
+            logger.severe("idToString: mappingValue is null (TRIPLEIDCONVERT)");
             return null;
         }
 
-        String uri = dictionary.idToString(id[0], getRole(id[1]));
+        Long id = mappingValue.getId();
+        Integer roleCode = mappingValue.getRole();
+
+        String uri = dictionary.idToString(id, getRole(roleCode));
         if (uri == null) {
-            logger.severe("idToString: URI is null for id (TRIPLEIDCONVERT): " + id[0] + ", role: " + getRole(id[1]));
+            logger.severe("idToString: URI is null for id (TRIPLEIDCONVERT): " + id + ", role: " + getRole(roleCode));
             return null;
         }
 
-        // Si es un literal (contiene comillas dobles)
-        if (id[1] == 3 && uri.startsWith("\"")) {
-            return createLiteralNode(uri);  // Crear un nodo literal
+        // Si es un literal (comienza con comillas dobles)
+        if (roleCode == 3 && uri.startsWith("\"")) {
+            return createLiteralNode(uri);
         }
 
         // Si no es un literal, crear un nodo URI
         return NodeFactory.createURI(uri);
     }
 
-    // Método para convertir una cadena (URI o literal) a un ID basado en el rol (sujeto, predicado, objeto)
-    public static Integer stringToID(SerializableDictionary dictionary, String element, TripleComponentRole role) {
-        Integer id = dictionary.stringToID(element, role);
-        if (id == null || id == -1) {
+    // Método auxiliar para convertir una cadena (URI o literal) a un ID basado en el rol (sujeto, predicado, objeto)
+    public static Long stringToID(SerializableDictionary dictionary, String element, TripleComponentRole role) {
+        Long id = dictionary.stringToID(element, role);
+        if (id == null || id == -1L) {
             logger.severe("stringToID: No ID found for element (TRIPLEIDCONVERT): " + element + " with role: " + role);
             return null;
         }
         return id;
     }
 
-    // Método auxiliar para convertir un ID en un nodo (Node) de Jena
-    public static String idToString(SerializableDictionary dictionary, int id, TripleComponentRole role) {
-        return dictionary.idToString(id, role);
-    }
-
     // Método auxiliar para convertir un literal con tipo XSD en un nodo
     private static Node createLiteralNode(String object) {
         int start = object.indexOf("\"") + 1;
         int end = object.lastIndexOf("\"");
-        if (start < 0 || end < 0 || start >= end) {
+        if (start <= 0 || end <= 0 || start >= end) {
             logger.severe("createLiteralNode: Invalid literal format (TRIPLEIDCONVERT): " + object);
             return null;
         }
@@ -62,8 +61,12 @@ public class TripleIDConvert {
 
         // Si el literal tiene un tipo (e.g., "value"^^<type>)
         if (object.contains("^^")) {
-            String type = object.substring(object.indexOf("^^") + 2);
-            return NodeFactory.createLiteral(value, getXSDDatatype(type));
+            String type = object.substring(object.indexOf("^^") + 2).trim();
+            if (type.startsWith("<") && type.endsWith(">")) {
+                type = type.substring(1, type.length() - 1);
+            }
+            RDFDatatype rdfDatatype = getXSDDatatype(type);
+            return NodeFactory.createLiteral(value, rdfDatatype);
         }
 
         // Si no tiene tipo, devolver un literal simple
@@ -71,21 +74,13 @@ public class TripleIDConvert {
     }
 
     // Método auxiliar para devolver el tipo de XSD correcto
-    private static XSDDatatype getXSDDatatype(String datatypeURI) {
-        switch (datatypeURI) {
-            case "http://www.w3.org/2001/XMLSchema#integer":
-                return XSDDatatype.XSDinteger;
-            case "http://www.w3.org/2001/XMLSchema#boolean":
-                return XSDDatatype.XSDboolean;
-            case "http://www.w3.org/2001/XMLSchema#dateTime":
-                return XSDDatatype.XSDdateTime;
-            case "http://www.w3.org/2001/XMLSchema#string":
-                return XSDDatatype.XSDstring;
-            // Otros tipos de XSD pueden agregarse aquí
-            default:
-                logger.warning("getXSDDatatype: Unknown datatype URI (TRIPLEIDCONVERT): " + datatypeURI);
-                return XSDDatatype.XSDstring;  // Valor por defecto
+    private static RDFDatatype getXSDDatatype(String datatypeURI) {
+        RDFDatatype rdfDatatype = TypeMapper.getInstance().getTypeByName(datatypeURI);
+        if (rdfDatatype == null) {
+            logger.warning("getXSDDatatype: Unknown datatype URI (TRIPLEIDCONVERT): " + datatypeURI);
+            rdfDatatype = TypeMapper.getInstance().getTypeByName("http://www.w3.org/2001/XMLSchema#string");  // Valor por defecto
         }
+        return rdfDatatype;
     }
 
     // Método para obtener el rol a partir del código
@@ -107,26 +102,23 @@ public class TripleIDConvert {
         }
     }
 
-    // Método idToStringFilter para convertir IDs a Node con manejo de literales
-    public static Node idToStringFilter(SerializableDictionary dictionary, Integer[] id) {
-        if (id == null || id.length != 2) {
-            logger.severe("idToStringFilter: Invalid ID array (TRIPLEIDCONVERT): " + id);
+    // Método idToStringFilter para convertir MappingValue a Node con manejo de literales
+    public static Node idToStringFilter(SerializableDictionary dictionary, SolutionMappingHDT.MappingValue mappingValue) {
+        return idToString(dictionary, mappingValue);
+    }
+
+    // Método para convertir un ID y un rol en una cadena (URI o literal)
+    public static String idToString(SerializableDictionary dictionary, long id, TripleComponentRole role) {
+        return dictionary.idToString(id, role);
+    }
+
+    // Método stringToID para convertir una cadena y un rol en un ID
+    public static Long stringToID(SerializableDictionary dictionary, String element, TripleComponentRole role) {
+        Long id = dictionary.stringToID(element, role);
+        if (id == null || id == -1L) {
+            logger.severe("stringToID: No ID found for element (TRIPLEIDCONVERT): " + element + " with role: " + role);
             return null;
         }
-
-        String uri = dictionary.idToString(id[0], getRole(id[1]));
-
-        if (uri == null) {
-            logger.severe("idToStringFilter: URI is null for id (TRIPLEIDCONVERT): " + id[0] + ", role: " + getRole(id[1]));
-            return null;
-        }
-
-        // Si es un literal, creamos un nodo literal
-        if (id[1] == 3 && uri.startsWith("\"")) {
-            return createLiteralNode(uri);
-        }
-
-        // Si no es un literal, devolvemos el nodo URI
-        return NodeFactory.createURI(uri);
+        return id;
     }
 }

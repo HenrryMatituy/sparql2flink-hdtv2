@@ -32,9 +32,9 @@ public class Triple2Triple implements FilterFunction<TripleID> {
         long tObject = t.getObject();
 
         // Convertir los IDs a URIs para fines de depuración (opcional)
-        String uriSubject = TripleIDConvert.idToString(dictionary, (int) tSubject, TripleComponentRole.SUBJECT);
-        String uriPredicate = TripleIDConvert.idToString(dictionary, (int) tPredicate, TripleComponentRole.PREDICATE);
-        String uriObject = TripleIDConvert.idToString(dictionary, (int) tObject, TripleComponentRole.OBJECT);
+        String uriSubject = TripleIDConvert.idToString(dictionary, tSubject, TripleComponentRole.SUBJECT);
+        String uriPredicate = TripleIDConvert.idToString(dictionary, tPredicate, TripleComponentRole.PREDICATE);
+        String uriObject = TripleIDConvert.idToString(dictionary, tObject, TripleComponentRole.OBJECT);
 
         System.out.println("URI del Sujeto: " + uriSubject);
         System.out.println("URI del Predicado: " + uriPredicate);
@@ -44,36 +44,36 @@ public class Triple2Triple implements FilterFunction<TripleID> {
         if (subject == null) {
             s = tSubject;
         } else {
-            Integer subjectId = TripleIDConvert.stringToID(dictionary, subject, TripleComponentRole.SUBJECT);
-            if (subjectId == -1) {
+            Long subjectId = TripleIDConvert.stringToID(dictionary, subject, TripleComponentRole.SUBJECT);
+            if (subjectId == null) {
                 System.out.println("Error: Sujeto no encontrado en el diccionario para el URI: " + subject);
                 return false;
             }
-            s = subjectId.longValue();
+            s = subjectId;
         }
 
         // Procesamiento del predicado
         if (predicate == null) {
             p = tPredicate;
         } else {
-            Integer predicateId = TripleIDConvert.stringToID(dictionary, predicate, TripleComponentRole.PREDICATE);
-            if (predicateId == -1) {
+            Long predicateId = TripleIDConvert.stringToID(dictionary, predicate, TripleComponentRole.PREDICATE);
+            if (predicateId == null) {
                 System.out.println("Error: Predicado no encontrado en el diccionario para el URI: " + predicate);
                 return false;
             }
-            p = predicateId.longValue();
+            p = predicateId;
         }
 
         // Procesamiento del objeto
         if (object == null) {
             o = tObject;
         } else {
-            Integer objectId = TripleIDConvert.stringToID(dictionary, object, TripleComponentRole.OBJECT);
-            if (objectId == -1) {
+            Long objectId = TripleIDConvert.stringToID(dictionary, object, TripleComponentRole.OBJECT);
+            if (objectId == null) {
                 System.out.println("Error: Objeto no encontrado en el diccionario para el URI: " + object);
                 return false;
             }
-            o = objectId.longValue();
+            o = objectId;
         }
 
         // Realizar las comparaciones

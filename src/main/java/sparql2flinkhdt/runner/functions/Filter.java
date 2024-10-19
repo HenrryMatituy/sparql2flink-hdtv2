@@ -16,6 +16,10 @@ public class Filter implements FilterFunction<SolutionMappingHDT> {
 
     @Override
     public boolean filter(SolutionMappingHDT sm) {
-        return sm.filter(dictionary, expression);
+        // Asegurarse de que 'sm' tiene el 'dictionary' configurado
+        if (sm.getSerializableDictionary() == null) {
+            sm.setSerializableDictionary(this.dictionary);
+        }
+        return sm.filter(expression);
     }
 }

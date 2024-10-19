@@ -3,7 +3,7 @@ package sparql2flinkhdt.runner.functions;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.jena.graph.Node;
 import sparql2flinkhdt.runner.SerializableDictionary;
-
+import sparql2flinkhdt.runner.functions.SolutionMappingHDT.MappingValue;
 import java.util.logging.Logger;
 
 public class TripleID2TripleString implements MapFunction<SolutionMappingHDT, SolutionMappingURI> {
@@ -19,10 +19,10 @@ public class TripleID2TripleString implements MapFunction<SolutionMappingHDT, So
     public SolutionMappingURI map(SolutionMappingHDT sm) {
         SolutionMappingURI smURI = new SolutionMappingURI();
         for (String var : sm.getMapping().keySet()) {
-            Integer[] id = sm.getMapping().get(var);
-            Node node = TripleIDConvert.idToString(dictionary, id);
+            MappingValue mappingValue = sm.getMapping().get(var);
+            Node node = TripleIDConvert.idToString(dictionary, mappingValue);
             if (node == null) {
-                logger.severe("map: Node is null for var: " + var + ", id: " + id[0]);
+                logger.severe("map: Node is null for var: " + var + ", id: " + mappingValue.getId());
             } else {
                 smURI.putMapping(var, node);
             }

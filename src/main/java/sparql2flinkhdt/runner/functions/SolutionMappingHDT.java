@@ -9,7 +9,7 @@ import org.apache.jena.sparql.expr.*;
 import org.apache.jena.sparql.function.FunctionEnvBase;
 import org.apache.jena.sparql.sse.SSE;
 import sparql2flinkhdt.runner.SerializableDictionary;
-import tu.paquete.TripleComponentRole;  // Asegúrate de importar la clase correcta
+import org.rdfhdt.hdt.enums.TripleComponentRole;  // Asegúrate de importar la clase correcta
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,9 +25,9 @@ public class SolutionMappingHDT implements Serializable {
     public static class MappingValue implements Serializable {
         private static final long serialVersionUID = 1L;
         private Long id;
-        private int role;
+        private Integer role;
 
-        public MappingValue(Long id, int role) {
+        public MappingValue(Long id, Integer role) {
             this.id = id;
             this.role = role;
         }
@@ -36,7 +36,7 @@ public class SolutionMappingHDT implements Serializable {
             return id;
         }
 
-        public int getRole() {
+        public Integer getRole() {
             return role;
         }
     }
@@ -140,24 +140,15 @@ public class SolutionMappingHDT implements Serializable {
                 String varName = entry.getKey().startsWith("?") ? entry.getKey().substring(1) : entry.getKey();
                 MappingValue value = entry.getValue();
 
-                String uriOrLiteral = TripleIDConvert.idToString(serializableDictionary, value.getId().intValue(), TripleComponentRole.fromInt(value.getRole()));
-                Node node;
-                if (TripleComponentRole.fromInt(value.getRole()) == TripleComponentRole.OBJECT) {
-                    // Determinar si es un literal o URI
-                    if (uriOrLiteral.startsWith("\"")) {
-                        node = SSE.parseNode(uriOrLiteral);
-                    } else {
-                        node = NodeFactory.createURI(uriOrLiteral);
-                    }
-                } else {
-                    node = NodeFactory.createURI(uriOrLiteral);
-                }
+                // Obtenemos el Node utilizando el MappingValue
+                Node node = TripleIDConvert.idToString(serializableDictionary, value);
 
                 binding = BindingFactory.binding(binding, Var.alloc(varName), node);
             }
 
             // Evaluamos la expresión con el binding
-            NodeValue result = expr.eval(binding, FunctionEnvBase.createTest());
+            NodeValue result = expr.eval(binding, null);
+
             return result.getBoolean();
         } catch (ExprEvalException e) {
             logger.severe("Error al evaluar la expresión: " + e.getMessage());
@@ -169,6 +160,7 @@ public class SolutionMappingHDT implements Serializable {
             return false;
         }
     }
+
 
     // Crear una nueva instancia de SolutionMappingHDT solo con las variables especificadas
     public SolutionMappingHDT newSolutionMapping(String[] vars) {
