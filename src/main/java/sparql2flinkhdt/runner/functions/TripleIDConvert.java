@@ -38,20 +38,26 @@ public class TripleIDConvert {
         return NodeFactory.createURI(uri);
     }
 
-    // Método auxiliar para convertir una cadena (URI o literal) a un ID basado en el rol (sujeto, predicado, objeto)
+    // Método auxiliar para convertir una cadena y un rol en un ID
     public static Long stringToID(SerializableDictionary dictionary, String element, TripleComponentRole role) {
         Long id = dictionary.stringToID(element, role);
-        if (id == null || id == -1L) {
+        if (id == null) {
             logger.severe("stringToID: No ID found for element (TRIPLEIDCONVERT): " + element + " with role: " + role);
             return null;
         }
         return id;
     }
 
+    // Resto de los métodos...
+
     // Método auxiliar para convertir un literal con tipo XSD en un nodo
     private static Node createLiteralNode(String object) {
         int start = object.indexOf("\"") + 1;
         int end = object.lastIndexOf("\"");
+
+        // Agregar un mensaje de depuración
+        System.out.println("Procesando literal: " + object);
+
         if (start <= 0 || end <= 0 || start >= end) {
             logger.severe("createLiteralNode: Invalid literal format (TRIPLEIDCONVERT): " + object);
             return null;
@@ -66,12 +72,39 @@ public class TripleIDConvert {
                 type = type.substring(1, type.length() - 1);
             }
             RDFDatatype rdfDatatype = getXSDDatatype(type);
+            System.out.println("Literal procesado con tipo: " + type + ", valor: " + value);  // Depuración
             return NodeFactory.createLiteral(value, rdfDatatype);
         }
 
         // Si no tiene tipo, devolver un literal simple
+        System.out.println("Literal procesado: " + value);  // Depuración
         return NodeFactory.createLiteral(value);
     }
+
+// Restarurar después de la prueba
+//    private static Node createLiteralNode(String object) {
+//        int start = object.indexOf("\"") + 1;
+//        int end = object.lastIndexOf("\"");
+//        if (start <= 0 || end <= 0 || start >= end) {
+//            logger.severe("createLiteralNode: Invalid literal format (TRIPLEIDCONVERT): " + object);
+//            return null;
+//        }
+//
+//        String value = object.substring(start, end);
+//
+//        // Si el literal tiene un tipo (e.g., "value"^^<type>)
+//        if (object.contains("^^")) {
+//            String type = object.substring(object.indexOf("^^") + 2).trim();
+//            if (type.startsWith("<") && type.endsWith(">")) {
+//                type = type.substring(1, type.length() - 1);
+//            }
+//            RDFDatatype rdfDatatype = getXSDDatatype(type);
+//            return NodeFactory.createLiteral(value, rdfDatatype);
+//        }
+//
+//        // Si no tiene tipo, devolver un literal simple
+//        return NodeFactory.createLiteral(value);
+//    }
 
     // Método auxiliar para devolver el tipo de XSD correcto
     private static RDFDatatype getXSDDatatype(String datatypeURI) {
@@ -110,15 +143,5 @@ public class TripleIDConvert {
     // Método para convertir un ID y un rol en una cadena (URI o literal)
     public static String idToString(SerializableDictionary dictionary, long id, TripleComponentRole role) {
         return dictionary.idToString(id, role);
-    }
-
-    // Método stringToID para convertir una cadena y un rol en un ID
-    public static Long stringToID(SerializableDictionary dictionary, String element, TripleComponentRole role) {
-        Long id = dictionary.stringToID(element, role);
-        if (id == null || id == -1L) {
-            logger.severe("stringToID: No ID found for element (TRIPLEIDCONVERT): " + element + " with role: " + role);
-            return null;
-        }
-        return id;
     }
 }

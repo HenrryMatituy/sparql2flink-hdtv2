@@ -12,17 +12,31 @@ public class TripleID2TripleString implements MapFunction<SolutionMappingHDT, So
     private static final Logger logger = Logger.getLogger(TripleID2TripleString.class.getName());
 
     public TripleID2TripleString(SerializableDictionary dictionary) {
+        if (dictionary == null) {
+            throw new IllegalArgumentException("El diccionario no puede ser null.");
+        }
         this.dictionary = dictionary;
     }
 
     @Override
     public SolutionMappingURI map(SolutionMappingHDT sm) {
+        if (sm == null) {
+            logger.severe("map: El SolutionMappingHDT de entrada es null.");
+            return null;
+        }
+
         SolutionMappingURI smURI = new SolutionMappingURI();
         for (String var : sm.getMapping().keySet()) {
             MappingValue mappingValue = sm.getMapping().get(var);
+
+            if (mappingValue == null) {
+                logger.severe("map: MappingValue es null para la variable: " + var);
+                continue; // Saltar a la siguiente variable
+            }
+
             Node node = TripleIDConvert.idToString(dictionary, mappingValue);
             if (node == null) {
-                logger.severe("map: Node is null for var: " + var + ", id: " + mappingValue.getId());
+                logger.severe("map: Node es null para la variable: " + var + ", id: " + mappingValue.getId());
             } else {
                 smURI.putMapping(var, node);
             }

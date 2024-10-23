@@ -13,6 +13,7 @@ import sparql2flinkhdt.runner.LoadTriples;
 import sparql2flinkhdt.runner.functions.*;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Query {
 	public static void main(String[] args) throws Exception {
@@ -46,26 +47,99 @@ public class Query {
 		SerializableDictionary serializableDictionary = new SerializableDictionary();
 		serializableDictionary.loadFromHDTDictionary(hdt.getDictionary());
 
-		// Verificación del contenido del diccionario
-		System.out.println("Verificando el contenido del diccionario:");
-		for (TripleID t : listTripleID) {
-			// Convertir los IDs de sujeto, predicado y objeto a sus URIs usando el diccionario
-			String subject = serializableDictionary.idToString((int) t.getSubject(), TripleComponentRole.SUBJECT);
-			String predicate = serializableDictionary.idToString((int) t.getPredicate(), TripleComponentRole.PREDICATE);
-			String object = serializableDictionary.idToString((int) t.getObject(), TripleComponentRole.OBJECT);
+//		// Verificación del contenido del diccionario
+//		System.out.println("Número de triples cargados: " + listTripleID.size());
+//		System.out.println("Verificando el contenido del diccionario:");
+//		for (TripleID t : listTripleID) {
+//			// Convertir los IDs de sujeto, predicado y objeto a sus URIs usando el diccionario
+//			String subject = serializableDictionary.idToString((int) t.getSubject(), TripleComponentRole.SUBJECT);
+//			String predicate = serializableDictionary.idToString((int) t.getPredicate(), TripleComponentRole.PREDICATE);
+//			String object = serializableDictionary.idToString((int) t.getObject(), TripleComponentRole.OBJECT);
+//
+//			// Imprimir el triple resultante
+//			System.out.println("Triple: " + subject + " " + predicate + " " + object);
+//		}
+//		System.out.println("Mapeo de los PREDICADOS");
+//		serializableDictionary.printPredicateMappings();
 
-			// Imprimir el triple resultante
-			System.out.println("Triple: " + subject + " " + predicate + " " + object);
-		}
-		System.out.println("Mapeo de los PREDICADOS");
-		serializableDictionary.printPredicateMappings();
+////Prueba filter
+//		DataSet<TripleID> filteredDataset = dataset
+//				.filter(new Triple2Triple(serializableDictionary, null, "http://xmlns.com/foaf/0.1/name", null));
+//
+//		long count = filteredDataset.count();
+//		System.out.println("Número de elementos filtrados: " + count);
 
+//		////Prueba map
+//		DataSet<SolutionMappingHDT> sm1 = dataset
+//				.map(new Triple2SolutionMapping("?person", null, "?name", serializableDictionary));
+//		long count = sm1.count();
+//		System.out.println("Número de elementos en sm1: " + count);
+//		sm1.print();  // Para verificar los elementos mapeados
 
+////Prueba sin count
+//		DataSet<SolutionMappingHDT> sm1 = dataset
+//				.map(new Triple2SolutionMapping("?person", null, "?name", serializableDictionary));
+//
+//		try {
+//			System.out.println("Iniciando la ejecución del trabajo de Flink...");
+//			sm1.print();  // Imprimir los resultados directamente
+//			System.out.println("Ejecución del trabajo de Flink finalizada.");
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
 
-		// Crear el primer conjunto de mapeo de soluciones (sm1) para personas y nombres
+////Prueba sin count 2
+//		DataSet<SolutionMappingHDT> sm1 = dataset
+//				.map(new Triple2SolutionMapping("?person", null, "?name", serializableDictionary));
+//
+//		try {
+//			System.out.println("Iniciando la ejecución del trabajo de Flink...");
+//
+//			// Escribir el resultado en un archivo temporal para verificar que el trabajo se está ejecutando
+//			sm1.writeAsText("output_temp.txt", FileSystem.WriteMode.OVERWRITE)
+//					.setParallelism(1); // Evita que se divida en varios archivos
+//
+//			env.execute("SPARQL Query to Flink Program - DataSet API");
+//
+//			System.out.println("Ejecución del trabajo de Flink finalizada.");
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+
+//		DataSet<SolutionMappingHDT> sm1 = dataset
+//				.map(new Triple2SolutionMapping("?person", serializableDictionary));
+//
+//		try {
+//			long count = sm1.count();
+//			System.out.println("Número de elementos en sm1: " + count);
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+
 		DataSet<SolutionMappingHDT> sm1 = dataset
-				.filter(new Triple2Triple(serializableDictionary, null, "http://xmlns.com/foaf/0.1/name", null))
-				.map(new Triple2SolutionMapping("?person", null, "?name", serializableDictionary));
+				.map(new Triple2SolutionMapping("?person", serializableDictionary));
+
+		try {
+			// Recogemos los datos en una lista y los imprimimos
+			List<SolutionMappingHDT> results = sm1.collect();
+			System.out.println("Número de elementos en sm1: " + results.size());
+			for (SolutionMappingHDT result : results) {
+				System.out.println(result);
+			}
+			System.out.println("Ejecución del trabajo de Flink finalizada.");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+
+//		// Crear el primer conjunto de mapeo de soluciones (sm1) para personas y nombres
+//		DataSet<SolutionMappingHDT> sm1 = dataset
+//				.filter(new Triple2Triple(serializableDictionary, null, "http://xmlns.com/foaf/0.1/name", null))
+//				.map(new Triple2SolutionMapping("?person", null, "?name", serializableDictionary));
+//
+//		long count = sm1.count();
+//		System.out.println("Número de elementos en sm1: " + count);
+
 
 //		// Crear el segundo conjunto de mapeo de soluciones (sm2) para personas y correos electrónicos
 //		DataSet<SolutionMappingHDT> sm2 = dataset
@@ -87,8 +161,8 @@ public class Query {
 //				.map(new TripleID2TripleString(serializableDictionary));
 
 		// Escribir el resultado a un archivo de texto
-		sm1.writeAsText(params.get("output") + "Query-Flink-Result", FileSystem.WriteMode.OVERWRITE)
-				.setParallelism(1);
+//		sm1.writeAsText(params.get("output") + "Query-Flink-Result", FileSystem.WriteMode.OVERWRITE)
+//				.setParallelism(1);
 
 		// Ejecutar el job de Flink
 		env.execute("SPARQL Query to Flink Program - DataSet API");
